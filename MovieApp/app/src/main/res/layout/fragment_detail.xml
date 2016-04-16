@@ -1,12 +1,14 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
 
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content">
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    >
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:orientation="vertical"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:paddingBottom="@dimen/activity_vertical_margin"
         android:paddingLeft="@dimen/activity_horizontal_margin"
         android:paddingRight="@dimen/activity_horizontal_margin"
@@ -18,7 +20,7 @@
 
         <TextView
             android:layout_width="wrap_content"
-            android:layout_height="70dp"
+            android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceLarge"
             android:text="The Hunger games Moking jay"
 
@@ -26,8 +28,8 @@
             android:layout_gravity="center_horizontal" />
 
         <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="214dp"
+            android:layout_height="183dp"
             android:id="@+id/thumbnail"
             android:layout_marginTop="10dp"
             android:layout_marginBottom="10dp"
@@ -35,6 +37,13 @@
             android:maxWidth="400dp"
             android:minWidth="400dp"
             android:minHeight="300dp" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/markAsFavourite"
+            android:id="@+id/favourite" />
+
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -45,7 +54,7 @@
             />
 
         <TextView
-            android:layout_width="243dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:text="Overview"
@@ -67,15 +76,24 @@
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:layout_height="42dp"
             android:id="@+id/releaseDate" />
-        <RatingBar
+        <TextView
+            android:text="ratings"
             android:isIndicator="true"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/ratingBar" />
+            android:id="@+id/ratings" />
 
 
 
-
+    <ListView
+        android:id="@+id/trailers_list"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        ></ListView>
+        <ListView
+            android:id="@+id/reviews_list"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"></ListView>
     </LinearLayout>
 
 </ScrollView>

@@ -1,6 +1,9 @@
 package com.example.theseus.movieapp;
 
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -8,6 +11,7 @@ import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
 
+import com.example.theseus.movieapp.data.MovieContract;
 import com.squareup.picasso.Picasso;
 
 /**
@@ -15,21 +19,50 @@ import com.squareup.picasso.Picasso;
  */
 public class ImageAdapter extends BaseAdapter {
     private Context mContext;
-    private Movie[] mThumbIds=null;
     final String LOG_TAG=ImageAdapter.class.getSimpleName();
     public ImageAdapter(Context c) {
         mContext = c;
     }
-
+    public static String sortBy=null;
+    public static String[] postersPath;
+    public static String[] movieId;
     public int getCount() {
-        if(mThumbIds==null){
-            return 0;
-        }
-        return mThumbIds.length;
-    }
+        Cursor cursor=null;
+        int count=0;
+        try {
+            cursor=mContext.getContentResolver().query(MovieContract.MoviesEntry.buildUriFromSortOrder(getSortBy()),
+                    new String[]{MovieContract.MoviesEntry.TABLE_NAME+"."+MovieContract.MoviesEntry.COLUMN_MOVIE_ID},null,null,null);
+            cursor.moveToFirst();
+            count=cursor.getCount();
+        }finally {
+            if(cursor!=null){
+                cursor.close();
+            }
 
-    public Movie getItem(int position) {
-        return mThumbIds[position];
+        }
+        return count;
+    }
+    public String getSortBy(){
+        SharedPreferences prefs= PreferenceManager.getDefaultSharedPreferences(mContext);
+        String sortBy=prefs.getString("sort_by_key", "popular");
+        return sortBy;
+    }
+    public String getItem(int position) {
+
+        Cursor cursor = null;
+        String item=null;
+        try{
+            cursor=mContext.getContentResolver().query(MovieContract.MoviesEntry.buildUriFromSortOrder(getSortBy()),
+                    new String[]{MovieContract.MoviesEntry.TABLE_NAME+"."+MovieContract.MoviesEntry.COLUMN_MOVIE_ID},null,null,null);
+            cursor.moveToFirst();
+            cursor.moveToPosition(position);
+            item=cursor.getString(0);
+        }finally{
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+        return item;
     }
 
     public long getItemId(int position) {
@@ -49,24 +82,22 @@ public class ImageAdapter extends BaseAdapter {
         } else {
             imageView = (ImageView) convertView;
         }
-        String url="http://image.tmdb.org/t/p/w185/"+mThumbIds[position].poster_path;
-        Log.d(LOG_TAG, "Image url: " + url);
-        Picasso.with(mContext).load(url).into(imageView);
-        //imageView.setImageResource(mThumbIds[position]);
-        //imageView.setImageResource(placeholder);
-        //return imageView;
+        SharedPreferences prefs= PreferenceManager.getDefaultSharedPreferences(mContext);
+        String sortBy=prefs.getString("sort_by_key","popular");
+        Log.d(LOG_TAG,"In image Adapte: sort by: "+getSortBy());
+        Cursor cursor=null;
+        try {
+            cursor=mContext.getContentResolver().query(MovieContract.MoviesEntry.buildUriFromSortOrder(sortBy),
+                    new String[]{MovieContract.MoviesEntry.COLUMN_POSTER},null,null,null);
+            cursor.moveToFirst();
+            cursor.moveToPosition(position);
+            String url="http://image.tmdb.org/t/p/w185/"+cursor.getString(0);
+            Log.d(LOG_TAG, "Position: " + position + " ,Image url: " + url);
+            Picasso.with(mContext).load(url).into(imageView);
+        }finally {
+            cursor.close();
+        }
         return imageView;
     }
 
-    // references to our images
-
-    public void setImages(Movie[] movies) {
-        if(movies==null){
-            return;
-        }
-        mThumbIds=movies;
-        for (Movie m:mThumbIds){
-            Log.d(LOG_TAG,m.toString());
-        }
-    }
 }

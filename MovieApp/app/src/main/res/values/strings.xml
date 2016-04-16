@@ -67,4 +67,8 @@
     <string name="top_rated_value">top_rated</string>
     <string name="sort_by_key">sort_by_key</string>
     <string name="title_activity_detail">Details</string>
+    <string name="favourite">Favourite</string>
+    <string name="favourite_value">favourites</string>
+    <string name="markAsFavourite">Mark as favourite</string>
+    <string name="removeFromFavourites">Remove from favourites</string>
 </resources>
