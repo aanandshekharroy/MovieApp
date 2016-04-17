@@ -12,6 +12,9 @@ import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -37,9 +40,22 @@ import java.util.Vector;
 /**
  * A placeholder fragment containing a simple view.
  */
-public class MainActivityFragment extends Fragment {
+public class MainActivityFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>{
     GridView movieGrid=null;
     final String LOG_TAG=MainActivityFragment.class.getSimpleName();
+    static final String[] movieProjections={
+            MovieContract.MoviesEntry.TABLE_NAME+"."+MovieContract.MoviesEntry.COLUMN_MOVIE_ID,
+            MovieContract.MoviesEntry.COLUMN_TITLE,
+            MovieContract.MoviesEntry.COLUMN_SYNOPSIS,
+            MovieContract.MoviesEntry.COLUMN_VOTES_AVG,
+            MovieContract.MoviesEntry.COLUMN_RELEASE_DATE,
+            MovieContract.MoviesEntry.COLUMN_POSTER};
+    static final int COLUMN_MOVIE_ID=0;
+    static final int COLUMN_TITLE=1;
+    static final int COLUMN_SYNOPSIS=2;
+    static final int COLUMN_VOTES_AVG=3;
+    static final int COLUMN_RELEASE_DATE=4;
+    static final int COLUMN_POSTER=5;
     public MainActivityFragment() {
         //setHasOptionsMenu(true);
     }
@@ -94,6 +110,7 @@ public class MainActivityFragment extends Fragment {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
                 String movieId=mImageAdapter.getItem(position);
+                Log.d(LOG_TAG,"on position "+position+", movieId="+movieId);
                 //new FetchTrailersAndReviews().execute(movieId);
                 //Log.d(LOG_TAG, "sending: " + movieId + ", position = " + position + "getSort by= " + getSortBy());
                 Intent detailActivity=new Intent(getActivity(),DetailActivity.class);
@@ -103,6 +120,24 @@ public class MainActivityFragment extends Fragment {
             }
         });
         return rootView;
+    }
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        String sortBy=getSortBy();
+        Uri movieByGenre= MovieContract.MoviesEntry.buildUriFromSortOrder(sortBy);
+        return new CursorLoader(getActivity(),
+                movieByGenre,movieProjections,null,null,null);
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+
     }
 
     class FetchMovieData extends AsyncTask<String,Void,Uri> {
@@ -191,13 +226,24 @@ public class MainActivityFragment extends Fragment {
         @Override
         protected void onPostExecute(Uri uri){
             Cursor cursor = null;
-            String sortBy= MovieContract.MoviesEntry.getSortByFromUri(uri);
-            if(MovieContract.MoviesEntry.getSortByFromUri(uri).equals("favourites")){
+            String sortBy;
+            if(uri==null){
+                sortBy=getSortBy();
+            }else {
+                sortBy = MovieContract.MoviesEntry.getSortByFromUri(uri);
+            }
+
+
+            if(sortBy.equals("favourites")){
                 //mImageAdapter.
                 movieGrid.setAdapter(mImageAdapter);
                 return;
             }
             try {
+                if(uri==null){
+                    movieGrid.setAdapter(mImageAdapter);
+                    return;
+                }
                 cursor = mContext.getContentResolver().query(uri,new String[]{MovieContract.MoviesEntry.COLUMN_MOVIE_ID},null,null,null);
                 if(cursor.moveToFirst()){
                     do{
@@ -205,7 +251,7 @@ public class MainActivityFragment extends Fragment {
                         new FetchTrailersAndReviews().execute(cursor.getString(0));
                 }while (cursor.moveToNext());
                     //mImageAdapter.setImages(uri,mContext);
-                movieGrid.setAdapter(mImageAdapter);
+                    movieGrid.setAdapter(mImageAdapter);
                 }
             }finally {
 

@@ -53,10 +53,18 @@ public class ImageAdapter extends BaseAdapter {
         String item=null;
         try{
             cursor=mContext.getContentResolver().query(MovieContract.MoviesEntry.buildUriFromSortOrder(getSortBy()),
-                    new String[]{MovieContract.MoviesEntry.TABLE_NAME+"."+MovieContract.MoviesEntry.COLUMN_MOVIE_ID},null,null,null);
+                    null,null,null,null);
             cursor.moveToFirst();
             cursor.moveToPosition(position);
             item=cursor.getString(0);
+            if(cursor.moveToFirst()){
+                for(int i=0;i<=position;i++){
+                    Log.d(LOG_TAG,"position="+i+", movieId="+cursor.getString(1));
+                    cursor.moveToNext();
+                }
+            }
+            Log.d(LOG_TAG,"returned id= "+item);
+
         }finally{
             if (cursor != null) {
                 cursor.close();
@@ -84,7 +92,7 @@ public class ImageAdapter extends BaseAdapter {
         }
         SharedPreferences prefs= PreferenceManager.getDefaultSharedPreferences(mContext);
         String sortBy=prefs.getString("sort_by_key","popular");
-        Log.d(LOG_TAG,"In image Adapte: sort by: "+getSortBy());
+        //Log.d(LOG_TAG,"In image Adapte: sort by: "+getSortBy());
         Cursor cursor=null;
         try {
             cursor=mContext.getContentResolver().query(MovieContract.MoviesEntry.buildUriFromSortOrder(sortBy),
@@ -92,7 +100,7 @@ public class ImageAdapter extends BaseAdapter {
             cursor.moveToFirst();
             cursor.moveToPosition(position);
             String url="http://image.tmdb.org/t/p/w185/"+cursor.getString(0);
-            Log.d(LOG_TAG, "Position: " + position + " ,Image url: " + url);
+            //Log.d(LOG_TAG, "Position: " + position + " ,Image url: " + url);
             Picasso.with(mContext).load(url).into(imageView);
         }finally {
             cursor.close();

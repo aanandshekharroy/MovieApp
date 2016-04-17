@@ -89,9 +89,9 @@ public class MovieProvider extends ContentProvider {
     public void  seeAllFavouriteMovie(){
         Cursor cursor=getContext().getContentResolver().query(MovieContract.FavouritesEntry.CONTENT_URI, null, null, null, null);
         if(cursor.moveToFirst()){
-            Log.d(LOG_TAG,"No of favourites: "+cursor.getCount());
+            //Log.d(LOG_TAG,"No of favourites: "+cursor.getCount());
             do{
-                Log.d(LOG_TAG,cursor.getString(0)+"\n"+cursor.getString(1)+"\n"+cursor.getString(2));
+                //Log.d(LOG_TAG,cursor.getString(0)+"\n"+cursor.getString(1)+"\n"+cursor.getString(2));
             }while (cursor.moveToNext());
         }
         if (cursor!=null){
@@ -102,7 +102,7 @@ public class MovieProvider extends ContentProvider {
     @Override
     public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
         int match=uriMatcher.match(uri);
-        Log.d(LOG_TAG,"query uri matcher: "+match+",as uri= "+uri.toString());
+        //Log.d(LOG_TAG,"query uri matcher: "+match+",as uri= "+uri.toString());
         Cursor retCursor=null;
         switch (match){
             case FAVOURITE_MOVIE_WITH_ID:

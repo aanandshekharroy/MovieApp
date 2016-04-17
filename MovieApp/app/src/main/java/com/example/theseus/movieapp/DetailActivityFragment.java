@@ -64,7 +64,7 @@ public class DetailActivityFragment extends Fragment {
             String sortBy=intent.getStringExtra("sortBy");
             //Log.d(LOG_TAG,"MovieId: DetailedActivity "+movieId+",sortBy="+sortBy);
             setMovieDetails(rootView, movieId, sortBy);
-            seeAllFavouriteMovie();
+            //seeAllFavouriteMovie();
             setMarkAsFavourite(rootView,movieId,sortBy);
             setReviews(rootView, movieId);
             setTrailers(rootView, movieId);
