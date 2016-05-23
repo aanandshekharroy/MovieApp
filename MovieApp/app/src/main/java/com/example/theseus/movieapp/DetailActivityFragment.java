@@ -3,28 +3,16 @@ package com.example.theseus.movieapp;
 import android.annotation.TargetApi;
 import android.content.Intent;
 import android.database.Cursor;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.BaseColumns;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.ListAdapter;
 import android.widget.ListView;
-import android.widget.TextView;
 
 import com.example.theseus.movieapp.data.MovieContract;
-import com.squareup.picasso.Picasso;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * A placeholder fragment containing a simple view.
@@ -34,24 +22,33 @@ public class DetailActivityFragment extends Fragment {
     public DetailActivityFragment() {
     }
     static final String[] movieProjections={
-            MovieContract.MoviesEntry.TABLE_NAME+"."+MovieContract.MoviesEntry.COLUMN_MOVIE_ID,
+            MovieContract.MoviesEntry.TABLE_NAME+"."+MovieContract.MoviesEntry.COLUMN_MOVIE_ID+" AS "+ BaseColumns._ID,
             MovieContract.MoviesEntry.COLUMN_TITLE,
             MovieContract.MoviesEntry.COLUMN_SYNOPSIS,
             MovieContract.MoviesEntry.COLUMN_VOTES_AVG,
             MovieContract.MoviesEntry.COLUMN_RELEASE_DATE,
             MovieContract.MoviesEntry.COLUMN_POSTER};
+
     static final int COLUMN_MOVIE_ID=0;
     static final int COLUMN_TITLE=1;
     static final int COLUMN_SYNOPSIS=2;
     static final int COLUMN_VOTES_AVG=3;
     static final int COLUMN_RELEASE_DATE=4;
     static final int COLUMN_POSTER=5;
-    static final String[] reviewsProjection={MovieContract.ReviewsEntry.COLUMN_MOVIE_ID,
+    static final String[] reviewsProjection={
+            MovieContract.ReviewsEntry.TABLE_NAME+"."+MovieContract.ReviewsEntry.COLUMN_MOVIE_ID+" AS "+BaseColumns._ID,
             MovieContract.ReviewsEntry.COLUMN_AUTHOR,
             MovieContract.ReviewsEntry.COLUMN_CONTENT};
+
     static final int COLUMN_AUTHOR=1;
     static final int COLUMN_CONTENT=2;
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+    static final String[] trailersProjection={
+            MovieContract.TrailersEntry.TABLE_NAME+"."+MovieContract.TrailersEntry.COLUMN_MOVIE_ID+" AS "+BaseColumns._ID,
+            MovieContract.TrailersEntry.COLUMN_TRAILER_URL
+    };
+    static final int COLUMN_URL=1;
+
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -63,28 +60,20 @@ public class DetailActivityFragment extends Fragment {
             String movieId=intent.getStringExtra("movieId");
             String sortBy=intent.getStringExtra("sortBy");
             //Log.d(LOG_TAG,"MovieId: DetailedActivity "+movieId+",sortBy="+sortBy);
-            setMovieDetails(rootView, movieId, sortBy);
-            //seeAllFavouriteMovie();
-            setMarkAsFavourite(rootView,movieId,sortBy);
-            setReviews(rootView, movieId);
-            setTrailers(rootView, movieId);
+            Cursor movieCursor=getContext().getContentResolver().query(MovieContract.MoviesEntry.buildUriFromSortOrderAndMovieId(sortBy,movieId),
+                    movieProjections,null,null,null,null);
+            ListView listView=(ListView)rootView.findViewById(R.id.detailedView);
+            //setMovieDetails(rootView, movieId, sortBy);
+            DetailActivityAdapter detailViewAdapter=new DetailActivityAdapter(rootView,getActivity(),movieCursor,0);
+            listView.setAdapter(detailViewAdapter);
+            //setMarkAsFavourite(rootView,movieId,sortBy);
+            //setReviews(rootView, movieId);
+            //setTrailers(rootView, movieId);
 
         }
         return rootView;
     }
-    public void  seeAllFavouriteMovie(){
-        Cursor cursor=getContext().getContentResolver().query(MovieContract.FavouritesEntry.CONTENT_URI, null, null, null, null);
-        if(cursor.moveToFirst()){
-            Log.d(LOG_TAG,"No of favourites: "+cursor.getCount());
-            do{
-                Log.d(LOG_TAG,cursor.getString(0)+": "+cursor.getString(2));
-            }while (cursor.moveToNext());
-        }
-        if (cursor!=null){
-            cursor.close();
-        }
-    }
-    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
+    /*@TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     private void setMarkAsFavourite(View rootView, final String movieId, String sortBy) {
         final Uri uriWithMovieId= MovieContract.FavouritesEntry.buildUriFromMovieId(movieId);
         boolean isFavourite=false;
@@ -122,7 +111,7 @@ public class DetailActivityFragment extends Fragment {
                 if(cursor!=null){
                     cursor.close();
                 }
-                seeAllFavouriteMovie();
+                //seeAllFavouriteMovie();
             }
         });
     }
@@ -239,5 +228,5 @@ public class DetailActivityFragment extends Fragment {
         ViewGroup.LayoutParams params = listView.getLayoutParams();
         params.height = totalHeight + (listView.getDividerHeight() * (listAdapter.getCount() - 1));
         listView.setLayoutParams(params);
-    }
+    }*/
 }

@@ -1,6 +1,6 @@
 package com.example.theseus.movieapp;
 
-import android.app.Activity;
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,7 +14,7 @@ import java.util.List;
  */
 public class ReviewsAdapter extends ArrayAdapter<Reviews>{
 
-    public ReviewsAdapter(Activity context, List<Reviews> lists) {
+    public ReviewsAdapter(Context context, List<Reviews> lists) {
         super(context,0,lists);
     }
 

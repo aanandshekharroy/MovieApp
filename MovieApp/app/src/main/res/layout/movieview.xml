@@ -1,7 +1,86 @@
 <?xml version="1.0" encoding="utf-8"?>
-<TextView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:id="@+id/movieView">
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:orientation="vertical"
+        android:layout_height="match_parent"
+        tools:context="com.example.theseus.movieapp.DetailActivityFragment"
 
-</TextView>
+    android:weightSum="1">
+
+
+        <TextView
+            android:background="#339966"
+            android:textColor="#FFFFFF"
+            android:layout_width="match_parent"
+            android:gravity="center_horizontal"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="The Hunger games Moking jay"
+
+            android:id="@+id/title"
+            android:layout_gravity="center_horizontal"
+            android:layout_weight="0.20"
+            android:textSize="30dp" />
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/thumbnail"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
+                android:maxHeight="400dp"
+                android:maxWidth="400dp"
+                android:minWidth="400dp"
+                android:minHeight="300dp"
+                android:src="@drawable/sample_0"/>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+                <TextView
+                    android:text="Releasedate"
+                    android:layout_width="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/releaseDate"
+                    android:layout_weight="1"/>
+                <TextView
+                    android:text="ratings"
+                    android:isIndicator="true"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/ratings"
+                    android:layout_weight="1"/>
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/markAsFavourite"
+                    android:id="@+id/favourite"
+                    android:layout_weight="1"/>
+            </LinearLayout>
+        </LinearLayout>
+
+
+
+
+
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:text="Overview"
+            android:id="@+id/overview"/>
+
+
+
+
+
+
+
+</LinearLayout>
+
