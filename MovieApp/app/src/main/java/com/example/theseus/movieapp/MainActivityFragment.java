@@ -22,6 +22,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
+import android.widget.Toast;
 
 import com.example.theseus.movieapp.data.MovieContract;
 
@@ -105,20 +106,7 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
         mImageAdapter=new ImageAdapter(getActivity());
 //        updateMovieGrid();
         movieGrid=(GridView)rootView.findViewById(R.id.movieGrid);
-        movieGrid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
-                String movieId=mImageAdapter.getItem(position);
-                Log.d(LOG_TAG,"on position "+position+", movieId="+movieId);
-                //new FetchTrailersAndReviews().execute(movieId);
-                //Log.d(LOG_TAG, "sending: " + movieId + ", position = " + position + "getSort by= " + getSortBy());
-                Intent detailActivity=new Intent(getActivity(),DetailActivity.class);
-                detailActivity.putExtra("movieId", movieId);
-                detailActivity.putExtra("sortBy",getSortBy());
-                startActivity(detailActivity);
-            }
-        });
         return rootView;
     }
 
@@ -215,18 +203,27 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
             }
             return null;
         }
-        String[] MOVIES_COLUMNS={MovieContract.MoviesEntry.COLUMN_MOVIE_ID,
+        String[] MOVIES_COLUMNS={
+                MovieContract.MoviesEntry._ID,
+                MovieContract.MoviesEntry.COLUMN_MOVIE_ID,
                 MovieContract.MoviesEntry.COLUMN_TITLE,
                 MovieContract.MoviesEntry.COLUMN_SYNOPSIS,
                 MovieContract.MoviesEntry.COLUMN_VOTES_AVG,
                 MovieContract.MoviesEntry.COLUMN_RELEASE_DATE,
                 MovieContract.MoviesEntry.COLUMN_POSTER
         };
+        int COLUMN_INDEX_MOVIE_ID=1;
+        int COLUMN_INDEX_MOVIE_TITLE=2;
+        int COLUMN_INDEX_MOVIE_SYNOPSIS=3;
+        int COLUMN_INDEX_MOVIE_VOTES_AVG=4;
+        int COLUMN_INDEX_MOVIE_RELEASE_DATE=5;
+        int COLUMN_INDEX_MOVIE_POSTER=6;
+
         @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
         @Override
         protected void onPostExecute(Uri uri){
             Cursor cursor = null;
-            String sortBy;
+            final String sortBy;
             if(uri==null){
                 sortBy=getSortBy();
             }else {
@@ -247,14 +244,44 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
                 cursor = mContext.getContentResolver().query(uri,new String[]{MovieContract.MoviesEntry.COLUMN_MOVIE_ID},null,null,null);
                 if(cursor.moveToFirst()){
                     do{
-                       // Log.d(LOG_TAG,"on post execute: movieId:"+cursor.getString(0));
+                        Log.d(LOG_TAG,"on post execute: movieId:"+cursor.getString(0));
                         new FetchTrailersAndReviews().execute(cursor.getString(0));
                 }while (cursor.moveToNext());
                     //mImageAdapter.setImages(uri,mContext);
                     movieGrid.setAdapter(mImageAdapter);
                 }
             }finally {
+                movieGrid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
+                        String movieId=mImageAdapter.getItem(position);
+//                        Log.d(LOG_TAG,"on position "+position+", movieId="+movieId);
+                        Cursor cursor=mContext.getContentResolver().query(MovieContract.MoviesEntry.buildUriFromSortOrder(getSortBy()),MOVIES_COLUMNS,null,null,null,null);
+                        cursor.moveToFirst();
+                        cursor.moveToPosition(position);
+                        //Toast.makeText(mContext,"Clicked on = "+cursor.getString(0),Toast.LENGTH_SHORT).show();
+                        //new FetchTrailersAndReviews().execute(movieId);
+                        //
+                        //Log.d(LOG_TAG, "sending: " + movieId + ", position = " + position + "getSort by= " + getSortBy());
+                        Intent detailActivity=new Intent(getActivity(),DetailActivity.class);
+                        detailActivity.putExtra("movieId",cursor.getString(COLUMN_INDEX_MOVIE_ID) );
+//                        detailActivity.putExtra("title",cursor.getString(COLUMN_INDEX_MOVIE_TITLE) );
+//                        detailActivity.putExtra("synopsis",cursor.getString(COLUMN_INDEX_MOVIE_SYNOPSIS) );
+//                        detailActivity.putExtra("votes_avg",cursor.getString(COLUMN_INDEX_MOVIE_VOTES_AVG) );
+//                        detailActivity.putExtra("releaseDate",cursor.getString(COLUMN_INDEX_MOVIE_RELEASE_DATE) );
+//                        detailActivity.putExtra("poster",cursor.getString(COLUMN_INDEX_MOVIE_POSTER));
+                        detailActivity.putExtra("sortBy",getSortBy());
+                        startActivity(detailActivity);
+                    }
+                });
+                //U
+//                cursor=mContext.getContentResolver().query(MovieContract.ReviewsEntry.buildUriForReviews(),
+//                        null,null,null,null);
+//                cursor.moveToFirst();
+//                do{
+//                    Log.d(LOG_TAG," review-of-"+cursor.getString(1));
+//                }while (cursor.moveToNext());
                 if (cursor != null) {
                     cursor.close();
                 }
@@ -314,6 +341,7 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
             movieId=params[0];
             baseUrlTrailer="http://api.themoviedb.org/3/movie/";
             baseUrlReviews="http://api.themoviedb.org/3/movie/";
+            //http://api.themoviedb.org/3/movie/273248/reviews?api_key=0105153be6c50857f2ec1ac9a3f65741
             Uri builtUriTrailer=Uri.parse(baseUrlTrailer).buildUpon()
                     .appendPath(movieId)
                     .appendPath("videos")

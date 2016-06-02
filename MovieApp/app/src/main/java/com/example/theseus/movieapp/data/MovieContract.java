@@ -2,6 +2,7 @@ package com.example.theseus.movieapp.data;
 
 import android.content.ContentResolver;
 import android.net.Uri;
+import android.provider.BaseColumns;
 import android.util.Log;
 
 /**
@@ -16,7 +17,7 @@ public class MovieContract {
     public static final String PATH_REVIEWS="reviews";
     public static final String PATH_TRAILERS="trailers";
     public static String BASE_URL;
-    public static class MoviesEntry  {
+    public static class MoviesEntry implements BaseColumns {
         public static final Uri CONTENT_URI=BASE_CONTENT_URI.buildUpon().appendPath(PATH_MOVIE)
                 .build();
         public static final Uri CONTENT_URI_GENRE=CONTENT_URI.buildUpon().appendEncodedPath(PATH_GENRE).build();
@@ -48,7 +49,7 @@ public class MovieContract {
             return CONTENT_URI.buildUpon().appendPath(sortOrder).appendPath(movieId).build();
         }
     }
-    public static class ReviewsEntry  {
+    public static class ReviewsEntry implements BaseColumns {
         public static final String CONTENT_TYPE=ContentResolver.CURSOR_DIR_BASE_TYPE+"/"+CONTENT_AUTHORITY+"/"+PATH_REVIEWS;
         public static final String CONTENT_TYPE_ITEM=ContentResolver.CURSOR_ITEM_BASE_TYPE+"/"+CONTENT_AUTHORITY+"/"+PATH_REVIEWS;
         public static final Uri CONTENT_URI=BASE_CONTENT_URI.buildUpon().appendPath(PATH_REVIEWS).build();
@@ -59,11 +60,14 @@ public class MovieContract {
         public static Uri buildUriFromID(String movie_id){
             return CONTENT_URI.buildUpon().appendPath(movie_id).build();
         }
+        public static Uri buildUriForReviews(){
+            return CONTENT_URI;
+        }
         public static String getMovieIdFromUri(Uri uri){
             return uri.getPathSegments().get(1);
         }
     }
-    public static class TrailersEntry  {
+    public static class TrailersEntry implements BaseColumns   {
         public static final Uri CONTENT_URI=BASE_CONTENT_URI.buildUpon().appendPath(PATH_TRAILERS).build();
         public static final String CONTENT_TYPE=ContentResolver.CURSOR_DIR_BASE_TYPE+"/"+CONTENT_AUTHORITY+"/"+PATH_TRAILERS;
         public static final String CONTENT_TYPE_ITEM=ContentResolver.CURSOR_ITEM_BASE_TYPE+"/"+CONTENT_AUTHORITY+"/"+PATH_TRAILERS;
@@ -77,7 +81,7 @@ public class MovieContract {
             return uri.getPathSegments().get(1);
         }
     }
-    public static class FavouritesEntry{
+    public static class FavouritesEntry implements BaseColumns {
         public static final String PATH_FAVOURITES="favourites";
         public static final String TABLE_NAME="favourites";
         public static final String COLUMN_MOVIE_ID="movie_id";

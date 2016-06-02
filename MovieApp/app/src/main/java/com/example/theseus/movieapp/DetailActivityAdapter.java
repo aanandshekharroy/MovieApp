@@ -32,41 +32,45 @@ public class DetailActivityAdapter extends CursorAdapter {
     Cursor trailersCursor=null;
     Context mContext;
     static final String[] movieProjections={
-            MovieContract.MoviesEntry.TABLE_NAME+"."+MovieContract.MoviesEntry.COLUMN_MOVIE_ID+" AS "+ BaseColumns._ID,
+            MovieContract.MoviesEntry._ID,
+            MovieContract.MoviesEntry.COLUMN_MOVIE_ID,
             MovieContract.MoviesEntry.COLUMN_TITLE,
             MovieContract.MoviesEntry.COLUMN_SYNOPSIS,
             MovieContract.MoviesEntry.COLUMN_VOTES_AVG,
             MovieContract.MoviesEntry.COLUMN_RELEASE_DATE,
             MovieContract.MoviesEntry.COLUMN_POSTER};
 
-    static final int COLUMN_MOVIE_ID=0;
-    static final int COLUMN_TITLE=1;
-    static final int COLUMN_SYNOPSIS=2;
-    static final int COLUMN_VOTES_AVG=3;
-    static final int COLUMN_RELEASE_DATE=4;
-    static final int COLUMN_POSTER=5;
+    static final int COLUMN_MOVIE_ID=1;
+    static final int COLUMN_TITLE=2;
+    static final int COLUMN_SYNOPSIS=3;
+    static final int COLUMN_VOTES_AVG=4;
+    static final int COLUMN_RELEASE_DATE=5;
+    static final int COLUMN_POSTER=6;
     static final int MOVIE=6;
     static final int REVIEWS=3;
     static final int TRAILERS=2;
     static final int TYPE_OF_VIEWS=3;
     static final String[] reviewsProjection={
-            MovieContract.ReviewsEntry.TABLE_NAME+"."+MovieContract.ReviewsEntry.COLUMN_MOVIE_ID+" AS "+ BaseColumns._ID,
+            MovieContract.ReviewsEntry._ID,
+            MovieContract.ReviewsEntry.COLUMN_MOVIE_ID,
             MovieContract.ReviewsEntry.COLUMN_AUTHOR,
             MovieContract.ReviewsEntry.COLUMN_CONTENT};
 
-    static final int COLUMN_AUTHOR=1;
-    static final int COLUMN_CONTENT=2;
+    static final int COLUMN_AUTHOR=2;
+    static final int COLUMN_CONTENT=3;
     static final String[] trailersProjection={
-            MovieContract.TrailersEntry.TABLE_NAME+"."+MovieContract.TrailersEntry.COLUMN_MOVIE_ID+" AS "+BaseColumns._ID,
+            MovieContract.TrailersEntry._ID,
+            MovieContract.TrailersEntry.COLUMN_MOVIE_ID,
             MovieContract.TrailersEntry.COLUMN_TRAILER_URL
     };
-    static final int COLUMN_URL=1;
+    static final int COLUMN_URL=2;
     View baseView=null;
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     public DetailActivityAdapter(View baseView, Context context, Cursor c, int flags) {
         super(context, c, flags);
         this.moviesCursor=c;
         this.baseView=baseView;
+        this.moviesCursor.moveToFirst();
         c.moveToFirst();
         mContext=context;
         this.movieId=c.getString(0);

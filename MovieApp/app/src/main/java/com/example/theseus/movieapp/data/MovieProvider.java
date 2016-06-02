@@ -63,8 +63,9 @@ public class MovieProvider extends ContentProvider {
         matcher.addURI(authority,"movies/*",MOVIE_WITH_GENRE);
 
         //matcher.addURI(authority,"movies/favourite/*",FAVOURITE_MOVIE_WITH_ID);
-        matcher.addURI(authority,"movies/*/*",MOVIE_WITH_ID);
-        matcher.addURI(authority,MovieContract.PATH_MOVIE+"/"+TOPRATED+"/*",MOVIE_WITH_ID);
+        matcher.addURI(authority,"movies/*/#",MOVIE_WITH_ID);
+        //just did on 2 jun
+        //matcher.addURI(authority,MovieContract.PATH_MOVIE+"/"+TOPRATED+"/*",MOVIE_WITH_ID);
 
 
         matcher.addURI(authority,MovieContract.PATH_REVIEWS,REVIEWS);

@@ -7,6 +7,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.BaseColumns;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,28 +23,32 @@ public class DetailActivityFragment extends Fragment {
     public DetailActivityFragment() {
     }
     static final String[] movieProjections={
-            MovieContract.MoviesEntry.TABLE_NAME+"."+MovieContract.MoviesEntry.COLUMN_MOVIE_ID+" AS "+ BaseColumns._ID,
+            //MovieContract.MoviesEntry.TABLE_NAME+"."+MovieContract.MoviesEntry.COLUMN_MOVIE_ID+" AS "+ BaseColumns._ID,
+            MovieContract.MoviesEntry._ID,
+            MovieContract.MoviesEntry.COLUMN_MOVIE_ID,
             MovieContract.MoviesEntry.COLUMN_TITLE,
             MovieContract.MoviesEntry.COLUMN_SYNOPSIS,
             MovieContract.MoviesEntry.COLUMN_VOTES_AVG,
             MovieContract.MoviesEntry.COLUMN_RELEASE_DATE,
             MovieContract.MoviesEntry.COLUMN_POSTER};
 
-    static final int COLUMN_MOVIE_ID=0;
-    static final int COLUMN_TITLE=1;
-    static final int COLUMN_SYNOPSIS=2;
-    static final int COLUMN_VOTES_AVG=3;
-    static final int COLUMN_RELEASE_DATE=4;
-    static final int COLUMN_POSTER=5;
+    static final int COLUMN_MOVIE_ID=1;
+    static final int COLUMN_TITLE=2;
+    static final int COLUMN_SYNOPSIS=3;
+    static final int COLUMN_VOTES_AVG=4;
+    static final int COLUMN_RELEASE_DATE=5;
+    static final int COLUMN_POSTER=6;
     static final String[] reviewsProjection={
-            MovieContract.ReviewsEntry.TABLE_NAME+"."+MovieContract.ReviewsEntry.COLUMN_MOVIE_ID+" AS "+BaseColumns._ID,
+            //MovieContract.ReviewsEntry.TABLE_NAME+"."+MovieContract.ReviewsEntry.COLUMN_MOVIE_ID+" AS "+BaseColumns._ID,
+            MovieContract.ReviewsEntry.COLUMN_MOVIE_ID,
             MovieContract.ReviewsEntry.COLUMN_AUTHOR,
             MovieContract.ReviewsEntry.COLUMN_CONTENT};
 
     static final int COLUMN_AUTHOR=1;
     static final int COLUMN_CONTENT=2;
     static final String[] trailersProjection={
-            MovieContract.TrailersEntry.TABLE_NAME+"."+MovieContract.TrailersEntry.COLUMN_MOVIE_ID+" AS "+BaseColumns._ID,
+            //MovieContract.TrailersEntry.TABLE_NAME+"."+MovieContract.TrailersEntry.COLUMN_MOVIE_ID+" AS "+BaseColumns._ID,
+            MovieContract.TrailersEntry.COLUMN_MOVIE_ID,
             MovieContract.TrailersEntry.COLUMN_TRAILER_URL
     };
     static final int COLUMN_URL=1;
@@ -59,9 +64,11 @@ public class DetailActivityFragment extends Fragment {
             //String movieDetails=intent.getStringExtra(Intent.EXTRA_TEXT);
             String movieId=intent.getStringExtra("movieId");
             String sortBy=intent.getStringExtra("sortBy");
-            //Log.d(LOG_TAG,"MovieId: DetailedActivity "+movieId+",sortBy="+sortBy);
+            Log.d(LOG_TAG,"MovieId: DetailedActivity "+movieId+",sortBy="+sortBy);
             Cursor movieCursor=getContext().getContentResolver().query(MovieContract.MoviesEntry.buildUriFromSortOrderAndMovieId(sortBy,movieId),
                     movieProjections,null,null,null,null);
+            movieCursor.moveToFirst();
+            Log.d(LOG_TAG,"detailed= "+movieCursor.getString(COLUMN_TITLE));
             ListView listView=(ListView)rootView.findViewById(R.id.detailedView);
             //setMovieDetails(rootView, movieId, sortBy);
             DetailActivityAdapter detailViewAdapter=new DetailActivityAdapter(rootView,getActivity(),movieCursor,0);
