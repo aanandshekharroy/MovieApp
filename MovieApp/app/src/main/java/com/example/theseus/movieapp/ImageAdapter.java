@@ -21,6 +21,7 @@ public class ImageAdapter extends BaseAdapter {
     private Context mContext;
     final String LOG_TAG=ImageAdapter.class.getSimpleName();
     public ImageAdapter(Context c) {
+
         mContext = c;
     }
     public static String sortBy=null;

@@ -8,7 +8,7 @@ import android.database.sqlite.SQLiteOpenHelper;
  * Created by theseus on 10/4/16.
  */
 public class MovieDBHelper extends SQLiteOpenHelper {
-    public static int DATABASE_VERSION=12;
+    public static int DATABASE_VERSION=14;
     public static String DATABASE_NAME="movie.db";
     public MovieDBHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -17,6 +17,7 @@ public class MovieDBHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         final String SQL_CREATE_MOVIES_TABLE="CREATE TABLE "+MovieContract.MoviesEntry.TABLE_NAME+"( "+
+                MovieContract.MoviesEntry._ID+" INTEGER PRIMARY KEY, "+
                 MovieContract.MoviesEntry.COLUMN_MOVIE_ID+" STRING NOT NULL, "+
                 MovieContract.MoviesEntry.COLUMN_TITLE+" STRING NOT NULL, "+
                 MovieContract.MoviesEntry.COLUMN_SYNOPSIS+" STRING NOT NULL, "+
@@ -28,6 +29,7 @@ public class MovieDBHelper extends SQLiteOpenHelper {
                 MovieContract.MoviesEntry.COLUMN_SORT_BY+") ON CONFLICT IGNORE " +
                 ");";
          final String SQL_CREATE_REVIEWS_TABLE="CREATE TABLE "+MovieContract.ReviewsEntry.TABLE_NAME+"( "+
+                MovieContract.ReviewsEntry._ID+" INTEGER PRIMARY KEY ,"+
                 MovieContract.ReviewsEntry.COLUMN_MOVIE_ID+" STRING NOT NULL, "+
                 MovieContract.ReviewsEntry.COLUMN_AUTHOR+" STRING NOT NULL, "+
                 MovieContract.ReviewsEntry.COLUMN_CONTENT+" STRING NOT NULL, "+
@@ -43,6 +45,7 @@ public class MovieDBHelper extends SQLiteOpenHelper {
                 " FOREIGN KEY ("+MovieContract.TrailersEntry.COLUMN_MOVIE_ID+") REFERENCES "+
                 MovieContract.MoviesEntry.TABLE_NAME+" ("+MovieContract.MoviesEntry.COLUMN_MOVIE_ID+"));";
         final String SQL_CREATE_FAVOURITES_TABLE="CREATE TABLE "+ MovieContract.FavouritesEntry.TABLE_NAME+"( "+
+                MovieContract.FavouritesEntry._ID+" INTEGER PRIMARY KEY ,"+
                 MovieContract.FavouritesEntry.COLUMN_MOVIE_ID+" STRING NOT NULL, "+" UNIQUE ("+
                 MovieContract.FavouritesEntry.COLUMN_MOVIE_ID+") ON CONFLICT IGNORE "+" FOREIGN KEY ("+
                 MovieContract.FavouritesEntry.COLUMN_MOVIE_ID+") REFERENCES "+
