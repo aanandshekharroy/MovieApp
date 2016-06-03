@@ -12,6 +12,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.example.theseus.movieapp.data.MovieContract;
 
@@ -60,22 +61,23 @@ public class DetailActivityFragment extends Fragment {
         View rootView=inflater.inflate(R.layout.fragment_detail, container, false);
 
         Intent intent=getActivity().getIntent();
-        if(intent!=null&&intent.hasExtra("movieId")){
+        if(intent!=null){
+            Toast.makeText(getContext(),intent.getDataString(),Toast.LENGTH_SHORT).show();
             //String movieDetails=intent.getStringExtra(Intent.EXTRA_TEXT);
-            String movieId=intent.getStringExtra("movieId");
-            String sortBy=intent.getStringExtra("sortBy");
-            Log.d(LOG_TAG,"MovieId: DetailedActivity "+movieId+",sortBy="+sortBy);
-            Cursor movieCursor=getContext().getContentResolver().query(MovieContract.MoviesEntry.buildUriFromSortOrderAndMovieId(sortBy,movieId),
-                    movieProjections,null,null,null,null);
-            movieCursor.moveToFirst();
-            Log.d(LOG_TAG,"detailed= "+movieCursor.getString(COLUMN_TITLE));
-            ListView listView=(ListView)rootView.findViewById(R.id.detailedView);
-            //setMovieDetails(rootView, movieId, sortBy);
-            DetailActivityAdapter detailViewAdapter=new DetailActivityAdapter(rootView,getActivity(),movieCursor,0);
-            listView.setAdapter(detailViewAdapter);
-            //setMarkAsFavourite(rootView,movieId,sortBy);
-            //setReviews(rootView, movieId);
-            //setTrailers(rootView, movieId);
+//            String movieId=intent.getStringExtra("movieId");
+//            String sortBy=intent.getStringExtra("sortBy");
+//            Log.d(LOG_TAG,"MovieId: DetailedActivity "+movieId+",sortBy="+sortBy);
+//            Cursor movieCursor=getContext().getContentResolver().query(MovieContract.MoviesEntry.buildUriFromSortOrderAndMovieId(sortBy,movieId),
+//                    movieProjections,null,null,null,null);
+//            movieCursor.moveToFirst();
+//            Log.d(LOG_TAG,"detailed= "+movieCursor.getString(COLUMN_TITLE));
+//            ListView listView=(ListView)rootView.findViewById(R.id.detailedView);
+//            //setMovieDetails(rootView, movieId, sortBy);
+//            DetailActivityAdapter detailViewAdapter=new DetailActivityAdapter(rootView,getActivity(),movieCursor,0);
+//            listView.setAdapter(detailViewAdapter);
+//            //setMarkAsFavourite(rootView,movieId,sortBy);
+//            //setReviews(rootView, movieId);
+//            //setTrailers(rootView, movieId);
 
         }
         return rootView;
