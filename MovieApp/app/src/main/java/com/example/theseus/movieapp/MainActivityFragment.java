@@ -60,7 +60,7 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
     public MainActivityFragment() {
         //setHasOptionsMenu(true);
     }
-    public ImageAdapter mImageAdapter=new ImageAdapter(getActivity());;
+    public ImageAdapter mImageAdapter;
     @Override
     public void onStart() {
         super.onStart();
@@ -103,9 +103,38 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
                              Bundle savedInstanceState) {
         //getActivity().getWindow().requestFeature(Window.FEATURE_ACTION_BAR);
         View rootView= inflater.inflate(R.layout.fragment_main, container, false);
-        mImageAdapter=new ImageAdapter(getActivity());
+        String sortBy=getSortBy();
+        Uri uri= MovieContract.MoviesEntry.buildUriFromSortOrder(sortBy);
+        Cursor cursor=getActivity().getContentResolver().query(uri,movieProjections,null,null,null);
+        mImageAdapter=new ImageAdapter(getActivity(),cursor,0);
 //        updateMovieGrid();
         movieGrid=(GridView)rootView.findViewById(R.id.movieGrid);
+
+        movieGrid.setAdapter(mImageAdapter);
+//        movieGrid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+//            @Override
+//            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+//
+//                String movieId=mImageAdapter.getItem(position);
+////                        Log.d(LOG_TAG,"on position "+position+", movieId="+movieId);
+//                Cursor cursor=mContext.getContentResolver().query(MovieContract.MoviesEntry.buildUriFromSortOrder(getSortBy()),MOVIES_COLUMNS,null,null,null,null);
+//                cursor.moveToFirst();
+//                cursor.moveToPosition(position);
+//                //Toast.makeText(mContext,"Clicked on = "+cursor.getString(0),Toast.LENGTH_SHORT).show();
+//                //new FetchTrailersAndReviews().execute(movieId);
+//                //
+//                //Log.d(LOG_TAG, "sending: " + movieId + ", position = " + position + "getSort by= " + getSortBy());
+//                Intent detailActivity=new Intent(getActivity(),DetailActivity.class);
+//                detailActivity.putExtra("movieId",cursor.getString(COLUMN_INDEX_MOVIE_ID) );
+////                        detailActivity.putExtra("title",cursor.getString(COLUMN_INDEX_MOVIE_TITLE) );
+////                        detailActivity.putExtra("synopsis",cursor.getString(COLUMN_INDEX_MOVIE_SYNOPSIS) );
+////                        detailActivity.putExtra("votes_avg",cursor.getString(COLUMN_INDEX_MOVIE_VOTES_AVG) );
+////                        detailActivity.putExtra("releaseDate",cursor.getString(COLUMN_INDEX_MOVIE_RELEASE_DATE) );
+////                        detailActivity.putExtra("poster",cursor.getString(COLUMN_INDEX_MOVIE_POSTER));
+//                detailActivity.putExtra("sortBy",getSortBy());
+//                startActivity(detailActivity);
+//            }
+//        });
 
         return rootView;
     }
@@ -248,33 +277,10 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
                         new FetchTrailersAndReviews().execute(cursor.getString(0));
                 }while (cursor.moveToNext());
                     //mImageAdapter.setImages(uri,mContext);
-                    movieGrid.setAdapter(mImageAdapter);
+
                 }
             }finally {
-                movieGrid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
-                        String movieId=mImageAdapter.getItem(position);
-//                        Log.d(LOG_TAG,"on position "+position+", movieId="+movieId);
-                        Cursor cursor=mContext.getContentResolver().query(MovieContract.MoviesEntry.buildUriFromSortOrder(getSortBy()),MOVIES_COLUMNS,null,null,null,null);
-                        cursor.moveToFirst();
-                        cursor.moveToPosition(position);
-                        //Toast.makeText(mContext,"Clicked on = "+cursor.getString(0),Toast.LENGTH_SHORT).show();
-                        //new FetchTrailersAndReviews().execute(movieId);
-                        //
-                        //Log.d(LOG_TAG, "sending: " + movieId + ", position = " + position + "getSort by= " + getSortBy());
-                        Intent detailActivity=new Intent(getActivity(),DetailActivity.class);
-                        detailActivity.putExtra("movieId",cursor.getString(COLUMN_INDEX_MOVIE_ID) );
-//                        detailActivity.putExtra("title",cursor.getString(COLUMN_INDEX_MOVIE_TITLE) );
-//                        detailActivity.putExtra("synopsis",cursor.getString(COLUMN_INDEX_MOVIE_SYNOPSIS) );
-//                        detailActivity.putExtra("votes_avg",cursor.getString(COLUMN_INDEX_MOVIE_VOTES_AVG) );
-//                        detailActivity.putExtra("releaseDate",cursor.getString(COLUMN_INDEX_MOVIE_RELEASE_DATE) );
-//                        detailActivity.putExtra("poster",cursor.getString(COLUMN_INDEX_MOVIE_POSTER));
-                        detailActivity.putExtra("sortBy",getSortBy());
-                        startActivity(detailActivity);
-                    }
-                });
                 //U
 //                cursor=mContext.getContentResolver().query(MovieContract.ReviewsEntry.buildUriForReviews(),
 //                        null,null,null,null);

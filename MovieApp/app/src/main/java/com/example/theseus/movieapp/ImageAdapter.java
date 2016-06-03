@@ -1,13 +1,16 @@
 package com.example.theseus.movieapp;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.os.Build;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.CursorAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
 
@@ -17,16 +20,19 @@ import com.squareup.picasso.Picasso;
 /**
  * Created by theseus on 3/4/16.
  */
-public class ImageAdapter extends BaseAdapter {
+public class ImageAdapter extends CursorAdapter {
     private Context mContext;
     final String LOG_TAG=ImageAdapter.class.getSimpleName();
-    public ImageAdapter(Context c) {
 
-        mContext = c;
-    }
     public static String sortBy=null;
     public static String[] postersPath;
     public static String[] movieId;
+
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+    public ImageAdapter(Context context, Cursor c, int flags) {
+        super(context, c, flags);
+    }
+
     public int getCount() {
         Cursor cursor=null;
         int count=0;
@@ -107,6 +113,41 @@ public class ImageAdapter extends BaseAdapter {
             cursor.close();
         }
         return imageView;
+    }
+
+    @Override
+    public View newView(Context context, Cursor cursor, ViewGroup parent) {
+        return null;
+    }
+
+    @Override
+    public void bindView(View view, Context context, Cursor cursor) {
+        ImageView imageView;
+        if (view == null) {
+            // if it's not recycled, initialize some attributes
+            imageView = new ImageView(mContext);
+            imageView.setLayoutParams(new GridView.LayoutParams(280, 280));
+            imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+            imageView.setPadding(40, 40, 17, 17);
+        } else {
+            imageView = (ImageView) view;
+        }
+        SharedPreferences prefs= PreferenceManager.getDefaultSharedPreferences(mContext);
+        String sortBy=prefs.getString("sort_by_key","popular");
+        //Log.d(LOG_TAG,"In image Adapte: sort by: "+getSortBy());
+        //Cursor cursor=null;
+        try {
+            cursor=mContext.getContentResolver().query(MovieContract.MoviesEntry.buildUriFromSortOrder(sortBy),
+                    new String[]{MovieContract.MoviesEntry.COLUMN_POSTER},null,null,null);
+            cursor.moveToFirst();
+            cursor.moveToPosition(position);
+            String url="http://image.tmdb.org/t/p/w185/"+cursor.getString(0);
+            //Log.d(LOG_TAG, "Position: " + position + " ,Image url: " + url);
+            Picasso.with(mContext).load(url).into(imageView);
+        }finally {
+            cursor.close();
+        }
+
     }
 
 }
