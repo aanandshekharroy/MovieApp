@@ -42,27 +42,41 @@ import java.util.Vector;
  * A placeholder fragment containing a simple view.
  */
 public class MainActivityFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>{
+    public static final int MOVIE_LOADER_ID=1;
     GridView movieGrid=null;
     final String LOG_TAG=MainActivityFragment.class.getSimpleName();
     static final String[] movieProjections={
-            MovieContract.MoviesEntry.TABLE_NAME+"."+MovieContract.MoviesEntry.COLUMN_MOVIE_ID,
+            MovieContract.MoviesEntry._ID,
+            MovieContract.MoviesEntry.COLUMN_MOVIE_ID,
             MovieContract.MoviesEntry.COLUMN_TITLE,
             MovieContract.MoviesEntry.COLUMN_SYNOPSIS,
             MovieContract.MoviesEntry.COLUMN_VOTES_AVG,
             MovieContract.MoviesEntry.COLUMN_RELEASE_DATE,
             MovieContract.MoviesEntry.COLUMN_POSTER};
-    static final int COLUMN_MOVIE_ID=0;
-    static final int COLUMN_TITLE=1;
-    static final int COLUMN_SYNOPSIS=2;
-    static final int COLUMN_VOTES_AVG=3;
-    static final int COLUMN_RELEASE_DATE=4;
-    static final int COLUMN_POSTER=5;
+    static final int COLUMN_MOVIE_ID=1;
+    static final int COLUMN_TITLE=2;
+    static final int COLUMN_SYNOPSIS=3;
+    static final int COLUMN_VOTES_AVG=4;
+    static final int COLUMN_RELEASE_DATE=5;
+    static final int COLUMN_POSTER=6;
     public MainActivityFragment() {
         //setHasOptionsMenu(true);
+    }
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        getLoaderManager().initLoader(MOVIE_LOADER_ID, null, this);
+        super.onActivityCreated(savedInstanceState);
     }
     public ImageAdapter mImageAdapter;
     @Override
     public void onStart() {
+        super.onStart();
+        //seeAllFavouriteMovie();
+        updateMovieGrid();
+    }
+    @Override
+    public void onResume() {
         super.onStart();
         //seeAllFavouriteMovie();
         updateMovieGrid();
@@ -101,41 +115,22 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        updateMovieGrid();
         //getActivity().getWindow().requestFeature(Window.FEATURE_ACTION_BAR);
         View rootView= inflater.inflate(R.layout.fragment_main, container, false);
-        String sortBy=getSortBy();
-        Uri uri= MovieContract.MoviesEntry.buildUriFromSortOrder(sortBy);
-        Cursor cursor=getActivity().getContentResolver().query(uri,movieProjections,null,null,null);
-        mImageAdapter=new ImageAdapter(getActivity(),cursor,0);
-//        updateMovieGrid();
+        mImageAdapter=new ImageAdapter(getActivity(),null,0);
         movieGrid=(GridView)rootView.findViewById(R.id.movieGrid);
-
         movieGrid.setAdapter(mImageAdapter);
-//        movieGrid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-//            @Override
-//            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-//
-//                String movieId=mImageAdapter.getItem(position);
-////                        Log.d(LOG_TAG,"on position "+position+", movieId="+movieId);
-//                Cursor cursor=mContext.getContentResolver().query(MovieContract.MoviesEntry.buildUriFromSortOrder(getSortBy()),MOVIES_COLUMNS,null,null,null,null);
-//                cursor.moveToFirst();
-//                cursor.moveToPosition(position);
-//                //Toast.makeText(mContext,"Clicked on = "+cursor.getString(0),Toast.LENGTH_SHORT).show();
-//                //new FetchTrailersAndReviews().execute(movieId);
-//                //
-//                //Log.d(LOG_TAG, "sending: " + movieId + ", position = " + position + "getSort by= " + getSortBy());
-//                Intent detailActivity=new Intent(getActivity(),DetailActivity.class);
-//                detailActivity.putExtra("movieId",cursor.getString(COLUMN_INDEX_MOVIE_ID) );
-////                        detailActivity.putExtra("title",cursor.getString(COLUMN_INDEX_MOVIE_TITLE) );
-////                        detailActivity.putExtra("synopsis",cursor.getString(COLUMN_INDEX_MOVIE_SYNOPSIS) );
-////                        detailActivity.putExtra("votes_avg",cursor.getString(COLUMN_INDEX_MOVIE_VOTES_AVG) );
-////                        detailActivity.putExtra("releaseDate",cursor.getString(COLUMN_INDEX_MOVIE_RELEASE_DATE) );
-////                        detailActivity.putExtra("poster",cursor.getString(COLUMN_INDEX_MOVIE_POSTER));
-//                detailActivity.putExtra("sortBy",getSortBy());
-//                startActivity(detailActivity);
-//            }
-//        });
-
+        movieGrid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Cursor cursor=(Cursor) parent.getItemAtPosition(position);
+                Toast.makeText(getActivity(),"Clicked on = "+cursor.getString(COLUMN_TITLE),Toast.LENGTH_SHORT).show();
+                Intent detailActivity=new Intent(getContext(),DetailActivity.class).setData(
+                        MovieContract.MoviesEntry.buildUriFromSortOrderAndMovieId(getSortBy(),cursor.getString(COLUMN_MOVIE_ID)));
+                startActivity(detailActivity);
+            }
+        });
         return rootView;
     }
 
@@ -147,13 +142,17 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
                 movieByGenre,movieProjections,null,null,null);
     }
 
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        mImageAdapter.swapCursor(data);
 
     }
 
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
+        mImageAdapter.swapCursor(null);
 
     }
 
@@ -262,12 +261,12 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
 
             if(sortBy.equals("favourites")){
                 //mImageAdapter.
-                movieGrid.setAdapter(mImageAdapter);
+                //movieGrid.setAdapter(mImageAdapter);
                 return;
             }
             try {
                 if(uri==null){
-                    movieGrid.setAdapter(mImageAdapter);
+                    //movieGrid.setAdapter(mImageAdapter);
                     return;
                 }
                 cursor = mContext.getContentResolver().query(uri,new String[]{MovieContract.MoviesEntry.COLUMN_MOVIE_ID},null,null,null);
@@ -276,18 +275,9 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
                         Log.d(LOG_TAG,"on post execute: movieId:"+cursor.getString(0));
                         new FetchTrailersAndReviews().execute(cursor.getString(0));
                 }while (cursor.moveToNext());
-                    //mImageAdapter.setImages(uri,mContext);
 
                 }
             }finally {
-
-                //U
-//                cursor=mContext.getContentResolver().query(MovieContract.ReviewsEntry.buildUriForReviews(),
-//                        null,null,null,null);
-//                cursor.moveToFirst();
-//                do{
-//                    Log.d(LOG_TAG," review-of-"+cursor.getString(1));
-//                }while (cursor.moveToNext());
                 if (cursor != null) {
                     cursor.close();
                 }

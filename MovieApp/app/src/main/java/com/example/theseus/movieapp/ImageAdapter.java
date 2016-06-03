@@ -27,127 +27,51 @@ public class ImageAdapter extends CursorAdapter {
     public static String sortBy=null;
     public static String[] postersPath;
     public static String[] movieId;
-
+    static final String[] movieProjections={
+            MovieContract.MoviesEntry._ID,
+            MovieContract.MoviesEntry.COLUMN_MOVIE_ID,
+            MovieContract.MoviesEntry.COLUMN_TITLE,
+            MovieContract.MoviesEntry.COLUMN_SYNOPSIS,
+            MovieContract.MoviesEntry.COLUMN_VOTES_AVG,
+            MovieContract.MoviesEntry.COLUMN_RELEASE_DATE,
+            MovieContract.MoviesEntry.COLUMN_POSTER};
+    static final int COLUMN_MOVIE_ID=1;
+    static final int COLUMN_TITLE=2;
+    static final int COLUMN_SYNOPSIS=3;
+    static final int COLUMN_VOTES_AVG=4;
+    static final int COLUMN_RELEASE_DATE=5;
+    static final int COLUMN_POSTER=6;
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     public ImageAdapter(Context context, Cursor c, int flags) {
         super(context, c, flags);
-    }
-
-    public int getCount() {
-        Cursor cursor=null;
-        int count=0;
-        try {
-            cursor=mContext.getContentResolver().query(MovieContract.MoviesEntry.buildUriFromSortOrder(getSortBy()),
-                    new String[]{MovieContract.MoviesEntry.TABLE_NAME+"."+MovieContract.MoviesEntry.COLUMN_MOVIE_ID},null,null,null);
-            cursor.moveToFirst();
-            count=cursor.getCount();
-        }finally {
-            if(cursor!=null){
-                cursor.close();
-            }
-
-        }
-        return count;
+        mContext=context;
     }
     public String getSortBy(){
         SharedPreferences prefs= PreferenceManager.getDefaultSharedPreferences(mContext);
         String sortBy=prefs.getString("sort_by_key", "popular");
         return sortBy;
     }
-    public String getItem(int position) {
-
-        Cursor cursor = null;
-        String item=null;
-        try{
-            cursor=mContext.getContentResolver().query(MovieContract.MoviesEntry.buildUriFromSortOrder(getSortBy()),
-                    null,null,null,null);
-            cursor.moveToFirst();
-            cursor.moveToPosition(position);
-            item=cursor.getString(0);
-            if(cursor.moveToFirst()){
-                for(int i=0;i<=position;i++){
-                    Log.d(LOG_TAG,"position="+i+", movieId="+cursor.getString(1));
-                    cursor.moveToNext();
-                }
-            }
-            Log.d(LOG_TAG,"returned id= "+item);
-
-        }finally{
-            if (cursor != null) {
-                cursor.close();
-            }
-        }
-        return item;
-    }
-
-    public long getItemId(int position) {
-        return 0;
-    }
-    public Integer placeholder=R.drawable.sample_0;
-    // create a new ImageView for each item referenced by the Adapter
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
+    public View newView(Context context, Cursor cursor, ViewGroup parent) {
         ImageView imageView;
-        if (convertView == null) {
-            // if it's not recycled, initialize some attributes
-            imageView = new ImageView(mContext);
-            imageView.setLayoutParams(new GridView.LayoutParams(280, 280));
-            imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
-            imageView.setPadding(40, 40, 17, 17);
-        } else {
-            imageView = (ImageView) convertView;
-        }
-        SharedPreferences prefs= PreferenceManager.getDefaultSharedPreferences(mContext);
-        String sortBy=prefs.getString("sort_by_key","popular");
-        //Log.d(LOG_TAG,"In image Adapte: sort by: "+getSortBy());
-        Cursor cursor=null;
-        try {
-            cursor=mContext.getContentResolver().query(MovieContract.MoviesEntry.buildUriFromSortOrder(sortBy),
-                    new String[]{MovieContract.MoviesEntry.COLUMN_POSTER},null,null,null);
-            cursor.moveToFirst();
-            cursor.moveToPosition(position);
-            String url="http://image.tmdb.org/t/p/w185/"+cursor.getString(0);
-            //Log.d(LOG_TAG, "Position: " + position + " ,Image url: " + url);
-            Picasso.with(mContext).load(url).into(imageView);
-        }finally {
-            cursor.close();
-        }
+        imageView = new ImageView(context);
+        imageView.setLayoutParams(new GridView.LayoutParams(280, 280));
+        imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+        imageView.setPadding(40, 40, 17, 17);
+        bindView(imageView,context,cursor);
+
+
         return imageView;
     }
 
     @Override
-    public View newView(Context context, Cursor cursor, ViewGroup parent) {
-        return null;
-    }
-
-    @Override
     public void bindView(View view, Context context, Cursor cursor) {
-        ImageView imageView;
-        if (view == null) {
-            // if it's not recycled, initialize some attributes
-            imageView = new ImageView(mContext);
-            imageView.setLayoutParams(new GridView.LayoutParams(280, 280));
-            imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
-            imageView.setPadding(40, 40, 17, 17);
-        } else {
-            imageView = (ImageView) view;
-        }
-        SharedPreferences prefs= PreferenceManager.getDefaultSharedPreferences(mContext);
+        SharedPreferences prefs= PreferenceManager.getDefaultSharedPreferences(context);
         String sortBy=prefs.getString("sort_by_key","popular");
-        //Log.d(LOG_TAG,"In image Adapte: sort by: "+getSortBy());
-        //Cursor cursor=null;
-        try {
-            cursor=mContext.getContentResolver().query(MovieContract.MoviesEntry.buildUriFromSortOrder(sortBy),
-                    new String[]{MovieContract.MoviesEntry.COLUMN_POSTER},null,null,null);
-            cursor.moveToFirst();
-            cursor.moveToPosition(position);
-            String url="http://image.tmdb.org/t/p/w185/"+cursor.getString(0);
-            //Log.d(LOG_TAG, "Position: " + position + " ,Image url: " + url);
-            Picasso.with(mContext).load(url).into(imageView);
-        }finally {
-            cursor.close();
-        }
-
+        String url="http://image.tmdb.org/t/p/w185/"+cursor.getString(COLUMN_POSTER);
+        Picasso.with(mContext).load(url).into((ImageView) view);
     }
+
+   
 
 }

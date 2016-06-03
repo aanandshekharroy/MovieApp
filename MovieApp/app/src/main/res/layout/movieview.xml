@@ -1,86 +1,87 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools"
+
+<RelativeLayout android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+
+    <TextView
+
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Large Text"
+        android:id="@+id/title"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true" />
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/poster"
+        android:layout_below="@+id/title"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="52dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="release date"
+        android:id="@+id/release_date"
+        android:layout_alignBottom="@+id/poster"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginRight="58dp"
+        android:layout_marginEnd="58dp" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="New Button"
+        android:id="@+id/favourite"
+        android:layout_below="@+id/poster"
+        android:layout_alignLeft="@+id/release_date"
+        android:layout_alignStart="@+id/release_date" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="Small Text"
+        android:id="@+id/votes"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_below="@+id/favourite"
+        android:layout_alignLeft="@+id/favourite"
+        android:layout_alignStart="@+id/favourite" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="Synopsis"
+        android:id="@+id/synopsis"
+        android:layout_below="@+id/votes"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="74dp"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
+    <LinearLayout
+        android:id="@+id/reviewsLayout"
         android:layout_width="match_parent"
-        android:orientation="vertical"
-        android:layout_height="match_parent"
-        tools:context="com.example.theseus.movieapp.DetailActivityFragment"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"></LinearLayout>
+    <LinearLayout
+        android:id="@+id/trailersLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"></LinearLayout>
+</RelativeLayout>
 
-    android:weightSum="1">
-
-
-        <TextView
-            android:background="#339966"
-            android:textColor="#FFFFFF"
-            android:layout_width="match_parent"
-            android:gravity="center_horizontal"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceLarge"
-            android:text="The Hunger games Moking jay"
-
-            android:id="@+id/title"
-            android:layout_gravity="center_horizontal"
-            android:layout_weight="0.20"
-            android:textSize="30dp" />
-        <LinearLayout
-            android:orientation="horizontal"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:id="@+id/thumbnail"
-                android:layout_marginTop="10dp"
-                android:layout_marginBottom="10dp"
-                android:maxHeight="400dp"
-                android:maxWidth="400dp"
-                android:minWidth="400dp"
-                android:minHeight="300dp"
-                android:src="@drawable/sample_0"/>
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="vertical">
-                <TextView
-                    android:text="Releasedate"
-                    android:layout_width="wrap_content"
-                    android:textAppearance="?android:attr/textAppearanceMedium"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/releaseDate"
-                    android:layout_weight="1"/>
-                <TextView
-                    android:text="ratings"
-                    android:isIndicator="true"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/ratings"
-                    android:layout_weight="1"/>
-                <Button
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/markAsFavourite"
-                    android:id="@+id/favourite"
-                    android:layout_weight="1"/>
-            </LinearLayout>
-        </LinearLayout>
-
-
-
-
-
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            android:text="Overview"
-            android:id="@+id/overview"/>
-
-
-
-
-
-
-
-</LinearLayout>
 
