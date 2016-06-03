@@ -74,6 +74,12 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
         //seeAllFavouriteMovie();
         updateMovieGrid();
     }
+    @Override
+    public void onResume() {
+        super.onStart();
+        //seeAllFavouriteMovie();
+        updateMovieGrid();
+    }
     public void  seeAllFavouriteMovie(){
         //Log.d(LOG_TAG,"favourite movies:");
         Cursor cursor=getContext().getContentResolver().query(MovieContract.FavouritesEntry.CONTENT_URI, null, null, null, null);
@@ -108,6 +114,7 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        updateMovieGrid();
         //getActivity().getWindow().requestFeature(Window.FEATURE_ACTION_BAR);
         View rootView= inflater.inflate(R.layout.fragment_main, container, false);
         mImageAdapter=new ImageAdapter(getActivity(),null,0);
@@ -117,28 +124,10 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Cursor cursor=(Cursor) parent.getItemAtPosition(position);
-
-                //String movieId=cursor.getString(COLUMN_TITLE);
-//                        Log.d(LOG_TAG,"on position "+position+", movieId="+movieId);
-                //Cursor cursor=mContext.getContentResolver().query(MovieContract.MoviesEntry.buildUriFromSortOrder(getSortBy()),MOVIES_COLUMNS,null,null,null,null);
-                //cursor.moveToFirst();
-                //cursor.moveToPosition(position);
                 Toast.makeText(getActivity(),"Clicked on = "+cursor.getString(COLUMN_TITLE),Toast.LENGTH_SHORT).show();
                 Intent detailActivity=new Intent(getContext(),DetailActivity.class).setData(
                         MovieContract.MoviesEntry.buildUriFromSortOrderAndMovieId(getSortBy(),cursor.getString(COLUMN_MOVIE_ID)));
                 startActivity(detailActivity);
-                //new FetchTrailersAndReviews().execute(movieId);
-                //
-                //Log.d(LOG_TAG, "sending: " + movieId + ", position = "  + "getSort by= " + getSortBy());
-//                Intent detailActivity=new Intent(getActivity(),DetailActivity.class);
-//                detailActivity.putExtra("movieId",cursor.getString(COLUMN_INDEX_MOVIE_ID) );
-////                        detailActivity.putExtra("title",cursor.getString(COLUMN_INDEX_MOVIE_TITLE) );
-////                        detailActivity.putExtra("synopsis",cursor.getString(COLUMN_INDEX_MOVIE_SYNOPSIS) );
-////                        detailActivity.putExtra("votes_avg",cursor.getString(COLUMN_INDEX_MOVIE_VOTES_AVG) );
-////                        detailActivity.putExtra("releaseDate",cursor.getString(COLUMN_INDEX_MOVIE_RELEASE_DATE) );
-////                        detailActivity.putExtra("poster",cursor.getString(COLUMN_INDEX_MOVIE_POSTER));
-//                detailActivity.putExtra("sortBy",getSortBy());
-//                startActivity(detailActivity);
             }
         });
         return rootView;
@@ -285,18 +274,8 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
                         Log.d(LOG_TAG,"on post execute: movieId:"+cursor.getString(0));
                         new FetchTrailersAndReviews().execute(cursor.getString(0));
                 }while (cursor.moveToNext());
-                    //mImageAdapter.setImages(uri,mContext);
-                    //movieGrid.setAdapter(mImageAdapter);
                 }
             }finally {
-
-                //U
-//                cursor=mContext.getContentResolver().query(MovieContract.ReviewsEntry.buildUriForReviews(),
-//                        null,null,null,null);
-//                cursor.moveToFirst();
-//                do{
-//                    Log.d(LOG_TAG," review-of-"+cursor.getString(1));
-//                }while (cursor.moveToNext());
                 if (cursor != null) {
                     cursor.close();
                 }

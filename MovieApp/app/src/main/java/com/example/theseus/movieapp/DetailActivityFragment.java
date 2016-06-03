@@ -3,14 +3,20 @@ package com.example.theseus.movieapp;
 import android.annotation.TargetApi;
 import android.content.Intent;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.BaseColumns;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -19,19 +25,32 @@ import com.example.theseus.movieapp.data.MovieContract;
 /**
  * A placeholder fragment containing a simple view.
  */
-public class DetailActivityFragment extends Fragment {
+public class DetailActivityFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
     final String LOG_TAG=DetailActivityFragment.class.getSimpleName();
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        getLoaderManager().initLoader(LOADER_ID,null,this);
+        super.onActivityCreated(savedInstanceState);
+    }
+    DetailActivityAdapter detailActivityAdapter;
+    private static final int LOADER_ID=0;
     public DetailActivityFragment() {
     }
+    Uri movieUri;
     static final String[] movieProjections={
             //MovieContract.MoviesEntry.TABLE_NAME+"."+MovieContract.MoviesEntry.COLUMN_MOVIE_ID+" AS "+ BaseColumns._ID,
-            MovieContract.MoviesEntry._ID,
-            MovieContract.MoviesEntry.COLUMN_MOVIE_ID,
+            MovieContract.MoviesEntry.TABLE_NAME+"."+MovieContract.MoviesEntry._ID,
+            MovieContract.MoviesEntry.TABLE_NAME+"."+MovieContract.MoviesEntry.COLUMN_MOVIE_ID,
             MovieContract.MoviesEntry.COLUMN_TITLE,
             MovieContract.MoviesEntry.COLUMN_SYNOPSIS,
             MovieContract.MoviesEntry.COLUMN_VOTES_AVG,
             MovieContract.MoviesEntry.COLUMN_RELEASE_DATE,
-            MovieContract.MoviesEntry.COLUMN_POSTER};
+            MovieContract.MoviesEntry.COLUMN_POSTER,
+            MovieContract.ReviewsEntry.COLUMN_AUTHOR,
+            MovieContract.ReviewsEntry.COLUMN_CONTENT,
+            MovieContract.TrailersEntry.COLUMN_TRAILER_URL
+    };
 
     static final int COLUMN_MOVIE_ID=1;
     static final int COLUMN_TITLE=2;
@@ -39,48 +58,42 @@ public class DetailActivityFragment extends Fragment {
     static final int COLUMN_VOTES_AVG=4;
     static final int COLUMN_RELEASE_DATE=5;
     static final int COLUMN_POSTER=6;
-    static final String[] reviewsProjection={
-            //MovieContract.ReviewsEntry.TABLE_NAME+"."+MovieContract.ReviewsEntry.COLUMN_MOVIE_ID+" AS "+BaseColumns._ID,
-            MovieContract.ReviewsEntry.COLUMN_MOVIE_ID,
-            MovieContract.ReviewsEntry.COLUMN_AUTHOR,
-            MovieContract.ReviewsEntry.COLUMN_CONTENT};
-
-    static final int COLUMN_AUTHOR=1;
-    static final int COLUMN_CONTENT=2;
-    static final String[] trailersProjection={
-            //MovieContract.TrailersEntry.TABLE_NAME+"."+MovieContract.TrailersEntry.COLUMN_MOVIE_ID+" AS "+BaseColumns._ID,
-            MovieContract.TrailersEntry.COLUMN_MOVIE_ID,
-            MovieContract.TrailersEntry.COLUMN_TRAILER_URL
-    };
-    static final int COLUMN_URL=1;
+    static final int COLUMN_AUTHOR=7;
+    static final int COLUMN_CONTENT=8;
+    static final int COLUMN_TRAILER_URL=9;
 
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView=inflater.inflate(R.layout.fragment_detail, container, false);
-
+        detailActivityAdapter=new DetailActivityAdapter(getContext(),null,0);
         Intent intent=getActivity().getIntent();
         if(intent!=null){
             Toast.makeText(getContext(),intent.getDataString(),Toast.LENGTH_SHORT).show();
-            //String movieDetails=intent.getStringExtra(Intent.EXTRA_TEXT);
-//            String movieId=intent.getStringExtra("movieId");
-//            String sortBy=intent.getStringExtra("sortBy");
-//            Log.d(LOG_TAG,"MovieId: DetailedActivity "+movieId+",sortBy="+sortBy);
-//            Cursor movieCursor=getContext().getContentResolver().query(MovieContract.MoviesEntry.buildUriFromSortOrderAndMovieId(sortBy,movieId),
-//                    movieProjections,null,null,null,null);
-//            movieCursor.moveToFirst();
-//            Log.d(LOG_TAG,"detailed= "+movieCursor.getString(COLUMN_TITLE));
-//            ListView listView=(ListView)rootView.findViewById(R.id.detailedView);
-//            //setMovieDetails(rootView, movieId, sortBy);
-//            DetailActivityAdapter detailViewAdapter=new DetailActivityAdapter(rootView,getActivity(),movieCursor,0);
-//            listView.setAdapter(detailViewAdapter);
-//            //setMarkAsFavourite(rootView,movieId,sortBy);
-//            //setReviews(rootView, movieId);
-//            //setTrailers(rootView, movieId);
-
+            movieUri=intent.getData();
+            //View view=inflater.inflate(R.layout.movieview,container,false);
+            ListView linearLayout=(ListView) rootView.findViewById(R.id.detailedView);
+            linearLayout.setAdapter(detailActivityAdapter);
         }
         return rootView;
+    }
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+
+        return new CursorLoader(getActivity(),movieUri,movieProjections,null,null,null);
+    }
+
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        detailActivityAdapter.swapCursor(data);
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+
     }
     /*@TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     private void setMarkAsFavourite(View rootView, final String movieId, String sortBy) {

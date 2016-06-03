@@ -32,10 +32,20 @@ public class MovieProvider extends ContentProvider {
     public static SQLiteQueryBuilder favouriteMovieQueryBuilder;
     public static SQLiteQueryBuilder reviewsQueryBuilder;
     public static SQLiteQueryBuilder trailersQueryBuilder;
+    public static SQLiteQueryBuilder movieDetail;
     static final String POPULARITY="popular";
     static final String TOPRATED="top_rated";
     static final String FAVOURITE="favourites";
     static {
+        movieDetail=new SQLiteQueryBuilder();
+        movieDetail.setTables(
+                MovieContract.MoviesEntry.TABLE_NAME+" LEFT JOIN "+ MovieContract.ReviewsEntry.TABLE_NAME+" ON "+
+                        MovieContract.MoviesEntry.TABLE_NAME+"."+ MovieContract.MoviesEntry.COLUMN_MOVIE_ID+" = "+
+                        MovieContract.ReviewsEntry.TABLE_NAME+"."+ MovieContract.ReviewsEntry.COLUMN_MOVIE_ID+" LEFT JOIN "+
+                        MovieContract.TrailersEntry.TABLE_NAME+" ON "+
+                        MovieContract.TrailersEntry.TABLE_NAME+"."+ MovieContract.TrailersEntry.COLUMN_MOVIE_ID+" = "+
+                        MovieContract.MoviesEntry.TABLE_NAME+"."+MovieContract.MoviesEntry.COLUMN_MOVIE_ID
+        );
         movieQueryBuilder=new SQLiteQueryBuilder();
         movieQueryBuilder.setTables(MovieContract.MoviesEntry.TABLE_NAME);
         reviewsQueryBuilder=new SQLiteQueryBuilder();
@@ -112,14 +122,6 @@ public class MovieProvider extends ContentProvider {
             case MOVIE_WITH_GENRE:
                 retCursor=getMoviesFromGenre(uri, projection, sortOrder);
                 break;
-            /*case MOVIE_WITH_GENRE_POPULARITY:
-                retCursor=movieQueryBuilder.query(mDBHelper.getReadableDatabase(),projection,
-                        movieSelectionGenre,new String[]{POPULARITY},null,null,sortOrder);
-                break;
-            case MOVIE_WITH_GENRE_TOP_RATED:
-                retCursor=movieQueryBuilder.query(mDBHelper.getReadableDatabase(), projection,
-                        movieSelectionGenre, new String[]{TOPRATED}, null, null, sortOrder);
-                break;*/
             case MOVIE_WITH_ID:
                 retCursor=getMoviesFromId(uri, projection, sortOrder);
                 break;
@@ -161,7 +163,7 @@ public class MovieProvider extends ContentProvider {
             +"."+ MovieContract.FavouritesEntry.COLUMN_MOVIE_ID+" = ? ",new String[]{movieId},null,null
             ,sortOrder);
         }
-        return movieQueryBuilder.query(mDBHelper.getReadableDatabase(),projection,movieSelectionById,new String[]{sortBy,movieId},null,null,sortOrder);
+        return movieDetail.query(mDBHelper.getReadableDatabase(),projection,movieSelectionById,new String[]{sortBy,movieId},null,null,sortOrder);
     }
     private Cursor getMoviesFromGenre(Uri uri, String[] projection, String sortOrder){
         String sortBy= MovieContract.MoviesEntry.getSortByFromUri(uri);

@@ -15,10 +15,8 @@
         <ListView
             android:id="@+id/detailedView"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"></ListView>
-        <ListView
-            android:id="@+id/reviewsList"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"></ListView>
+            android:layout_height="match_parent"
+            android:orientation="horizontal"></ListView>
+
 
     </LinearLayout>

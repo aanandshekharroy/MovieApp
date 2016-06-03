@@ -48,6 +48,9 @@ public class MovieContract {
         public static Uri buildUriFromSortOrderAndMovieId(String sortOrder,String movieId){
             return CONTENT_URI.buildUpon().appendPath(sortOrder).appendPath(movieId).build();
         }
+//        public static Uri buildUriFromMovieId(String movieId){
+//            return CONTENT_URI.buildUpon().appendPath(movieId).build();
+//        }
     }
     public static class ReviewsEntry implements BaseColumns {
         public static final String CONTENT_TYPE=ContentResolver.CURSOR_DIR_BASE_TYPE+"/"+CONTENT_AUTHORITY+"/"+PATH_REVIEWS;
