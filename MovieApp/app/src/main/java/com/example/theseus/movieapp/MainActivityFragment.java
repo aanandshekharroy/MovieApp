@@ -121,12 +121,15 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
         movieGrid=(GridView)rootView.findViewById(R.id.movieGrid);
         movieGrid.setAdapter(mImageAdapter);
         movieGrid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Cursor cursor=(Cursor) parent.getItemAtPosition(position);
                 Toast.makeText(getActivity(),"Clicked on = "+cursor.getString(COLUMN_TITLE),Toast.LENGTH_SHORT).show();
-                Intent detailActivity=new Intent(getContext(),DetailActivity.class).setData(
-                        MovieContract.MoviesEntry.buildUriFromSortOrderAndMovieId(getSortBy(),cursor.getString(COLUMN_MOVIE_ID)));
+                Uri movieIdUri=MovieContract.MoviesEntry.buildUriFromSortOrderAndMovieId(getSortBy(),cursor.getString(COLUMN_MOVIE_ID));
+                Intent detailActivity=new Intent(getContext(),DetailActivity.class).setData(movieIdUri);
+//                Cursor cursor2=getActivity().getContentResolver().query(movieIdUri,movieProjections,null,null,null,null);
+//                Log.d(LOG_TAG,"cursor movie Id= "+cursor2.getCount()+", columns: "+cursor2.getColumnCount());
                 startActivity(detailActivity);
             }
         });
