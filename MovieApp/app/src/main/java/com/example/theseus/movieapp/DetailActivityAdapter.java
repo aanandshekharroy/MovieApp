@@ -30,10 +30,8 @@ public class DetailActivityAdapter extends CursorAdapter {
 
     private static final String LOG_TAG=DetailActivityAdapter.class.getSimpleName();
     String movieId;
-    Cursor moviesCursor=null;
-    Cursor reviewsCursor=null;
-    Cursor trailersCursor=null;
     Context mContext;
+    public static View detailView=null;
     static final String[] movieProjections={
             //MovieContract.MoviesEntry.TABLE_NAME+"."+MovieContract.MoviesEntry.COLUMN_MOVIE_ID+" AS "+ BaseColumns._ID,
             MovieContract.MoviesEntry.TABLE_NAME+"."+MovieContract.MoviesEntry._ID ,
@@ -56,7 +54,7 @@ public class DetailActivityAdapter extends CursorAdapter {
             MovieContract.ReviewsEntry.COLUMN_AUTHOR,
             MovieContract.ReviewsEntry.COLUMN_CONTENT
     };
-    View detailView=null;
+
     static final int COLUMN_AUTHOR=2;
     static final int COLUMN_CONTENT=3;
     static final int COLUMN_TRAILER_URL=9;
@@ -69,9 +67,9 @@ public class DetailActivityAdapter extends CursorAdapter {
     @Override
     public View newView(Context context, Cursor cursor, ViewGroup parent) {
         View view = LayoutInflater.from(context).inflate(R.layout.movieview,parent,false);
-        if(detailView!=null){
-            return detailView;
-        }
+//        if(detailView!=null){
+//            return detailView;
+//        }
 
 //        String tableName =cursor.getColumnName(COLUMN_MOVIE_ID);
 //        Log.d(LOG_TAG,"table name= "+tableName);
@@ -107,31 +105,32 @@ public class DetailActivityAdapter extends CursorAdapter {
             TextView votes=(TextView)view.findViewById(R.id.votes);
             votes.setText(cursor.getString(COLUMN_VOTES_AVG));
         }
-        else if (tableName.contains(MovieContract.ReviewsEntry.TABLE_NAME)){
-            TextView author=(TextView)view.findViewById(R.id.author);
-            author.setText(cursor.getString(COLUMN_AUTHOR));
-            TextView content=(TextView)view.findViewById(R.id.content);
-            content.setText(cursor.getString(COLUMN_CONTENT));
-
-
-//            LinearLayout.LayoutParams params=new LinearLayout.LayoutParams(
-//                    LinearLayout.LayoutParams.MATCH_PARENT,
-//                    LinearLayout.LayoutParams.WRAP_CONTENT);
+        detailView=view;
+//        else if (tableName.contains(MovieContract.ReviewsEntry.TABLE_NAME)){
+//            TextView author=(TextView)view.findViewById(R.id.author);
+//            author.setText(cursor.getString(COLUMN_AUTHOR));
+//            TextView content=(TextView)view.findViewById(R.id.content);
+//            content.setText(cursor.getString(COLUMN_CONTENT));
 //
-//            LinearLayout reviewsLayout=(LinearLayout)view.findViewById(R.id.reviewsLayout);
 //
-//                cursor.moveToFirst();
-//                do{
-//                    authorTextView.setLayoutParams(params);
-//                    String content=cursor.getString(COLUMN_CONTENT);
-//                    TextView contentTextView=new TextView(context);
-//                    contentTextView.setText(content);
-//                    contentTextView.setLayoutParams(params);
-//                    reviewsLayout.addView(authorTextView);
-//                    reviewsLayout.addView(contentTextView);
-//                }while (cursor.moveToNext());
-
-        }
+////            LinearLayout.LayoutParams params=new LinearLayout.LayoutParams(
+////                    LinearLayout.LayoutParams.MATCH_PARENT,
+////                    LinearLayout.LayoutParams.WRAP_CONTENT);
+////
+////            LinearLayout reviewsLayout=(LinearLayout)view.findViewById(R.id.reviewsLayout);
+////
+////                cursor.moveToFirst();
+////                do{
+////                    authorTextView.setLayoutParams(params);
+////                    String content=cursor.getString(COLUMN_CONTENT);
+////                    TextView contentTextView=new TextView(context);
+////                    contentTextView.setText(content);
+////                    contentTextView.setLayoutParams(params);
+////                    reviewsLayout.addView(authorTextView);
+////                    reviewsLayout.addView(contentTextView);
+////                }while (cursor.moveToNext());
+//
+//        }
 //        cursor.moveToFirst();
 //        LinearLayout reviewsLayout= (LinearLayout) view.findViewById(R.id.reviewsLayout);
 //        String prevAuthor="";

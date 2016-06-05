@@ -22,6 +22,7 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.commonsware.cwac.merge.MergeAdapter;
 import com.example.theseus.movieapp.data.MovieContract;
 
 /**
@@ -32,8 +33,11 @@ public class DetailActivityFragment extends Fragment implements LoaderManager.Lo
     private static final int LOADER_MOVIE_ID=0;
     private static final int LOADER_REVIEW_ID=1;
     private static final int LOADER_TRAILER_ID=2;
+    ListView linearLayout;
+    ReviewsAdapter reviewsAdapter;
     Uri movieUri;
     String movieId;
+    MergeAdapter mergeAdapter=new MergeAdapter();
     static final String[] movieProjections={
             //MovieContract.MoviesEntry.TABLE_NAME+"."+MovieContract.MoviesEntry.COLUMN_MOVIE_ID+" AS "+ BaseColumns._ID,
             MovieContract.MoviesEntry.TABLE_NAME+"."+MovieContract.MoviesEntry._ID,
@@ -67,8 +71,11 @@ public class DetailActivityFragment extends Fragment implements LoaderManager.Lo
     }
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        Log.d(LOG_TAG,"1");
         getLoaderManager().initLoader(LOADER_MOVIE_ID,null,this);
+        Log.d(LOG_TAG,"1.1");
         getLoaderManager().initLoader(LOADER_REVIEW_ID,null,this);
+        Log.d(LOG_TAG,"1.2");
         super.onActivityCreated(savedInstanceState);
     }
     DetailActivityAdapter detailActivityAdapter;
@@ -83,14 +90,18 @@ public class DetailActivityFragment extends Fragment implements LoaderManager.Lo
                              Bundle savedInstanceState) {
         View rootView=inflater.inflate(R.layout.fragment_detail, container, false);
         detailActivityAdapter=new DetailActivityAdapter(getContext(),null,0);
+        reviewsAdapter=new ReviewsAdapter(getContext(),null,0);
         Intent intent=getActivity().getIntent();
         if(intent!=null){
             Toast.makeText(getContext(),intent.getDataString(),Toast.LENGTH_SHORT).show();
             movieUri=intent.getData();
             movieId= MovieContract.MoviesEntry.getMovieIdFromUri(movieUri);
             //View view=inflater.inflate(R.layout.movieview,container,false);
-            ListView linearLayout=(ListView) rootView.findViewById(R.id.detailedView);
-            linearLayout.setAdapter(detailActivityAdapter);
+            Log.d(LOG_TAG,"2");
+            linearLayout=(ListView) rootView.findViewById(R.id.detailedView);
+            linearLayout.setAdapter(mergeAdapter);
+            //linearLayout.setAdapter(detailActivityAdapter);
+
         }
         return rootView;
     }
@@ -99,8 +110,10 @@ public class DetailActivityFragment extends Fragment implements LoaderManager.Lo
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         switch (id){
             case LOADER_MOVIE_ID:
+                Log.d(LOG_TAG,"3");
                 return new CursorLoader(getActivity(),movieUri,movieProjections,null,null,null);
             case LOADER_REVIEW_ID:
+                Log.d(LOG_TAG,"4");
                 Uri reviewUri= MovieContract.ReviewsEntry.buildUriFromID(movieId);
                 return new CursorLoader(getContext(),reviewUri,reviewsProjection,null,null,null);
 
@@ -112,13 +125,33 @@ public class DetailActivityFragment extends Fragment implements LoaderManager.Lo
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        switch (loader.getId()){
+            case LOADER_MOVIE_ID:
+                Log.d(LOG_TAG,"5");
+                detailActivityAdapter.swapCursor(data);
+                mergeAdapter.addAdapter(detailActivityAdapter);
+                break;
+            case LOADER_REVIEW_ID:
+                Log.d(LOG_TAG,"6");
+                reviewsAdapter.swapCursor(data);
+                mergeAdapter.addAdapter(reviewsAdapter);
+
+        }
         //detailActivityAdapter.
-        detailActivityAdapter.swapCursor(data);
     }
 
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
-
+        switch (loader.getId()){
+            case LOADER_MOVIE_ID:
+                Log.d(LOG_TAG,"7");
+                detailActivityAdapter.swapCursor(null);
+                break;
+            case LOADER_REVIEW_ID:
+                Log.d(LOG_TAG,"8");
+                reviewsAdapter.swapCursor(null);
+        }
     }
     /*@TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     private void setMarkAsFavourite(View rootView, final String movieId, String sortBy) {
