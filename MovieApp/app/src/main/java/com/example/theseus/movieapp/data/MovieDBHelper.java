@@ -8,7 +8,7 @@ import android.database.sqlite.SQLiteOpenHelper;
  * Created by theseus on 10/4/16.
  */
 public class MovieDBHelper extends SQLiteOpenHelper {
-    public static int DATABASE_VERSION=14;
+    public static int DATABASE_VERSION=17;
     public static String DATABASE_NAME="movie.db";
     public MovieDBHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -38,6 +38,7 @@ public class MovieDBHelper extends SQLiteOpenHelper {
                 " FOREIGN KEY ("+MovieContract.ReviewsEntry.COLUMN_MOVIE_ID+") REFERENCES "+
                 MovieContract.MoviesEntry.TABLE_NAME+" ("+MovieContract.MoviesEntry.COLUMN_MOVIE_ID+"));";
         final String SQL_CREATE_TRAILERS_TABLE="CREATE TABLE "+MovieContract.TrailersEntry.TABLE_NAME+"( "+
+                MovieContract.TrailersEntry._ID+" INTEGER PRIMARY KEY ,"+
                 MovieContract.TrailersEntry.COLUMN_MOVIE_ID+" STRING NOT NULL, "+
                 MovieContract.TrailersEntry.COLUMN_TRAILER_URL+" STRING NOT NULL, "+
                 "UNIQUE ("+ MovieContract.TrailersEntry.COLUMN_TRAILER_URL

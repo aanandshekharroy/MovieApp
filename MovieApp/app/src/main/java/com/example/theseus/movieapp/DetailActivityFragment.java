@@ -35,6 +35,7 @@ public class DetailActivityFragment extends Fragment implements LoaderManager.Lo
     private static final int LOADER_TRAILER_ID=2;
     ListView linearLayout;
     ReviewsAdapter reviewsAdapter;
+    TrailersAdapter trailersAdapter;
     Uri movieUri;
     String movieId;
     MergeAdapter mergeAdapter=new MergeAdapter();
@@ -60,10 +61,15 @@ public class DetailActivityFragment extends Fragment implements LoaderManager.Lo
             MovieContract.ReviewsEntry.COLUMN_AUTHOR,
             MovieContract.ReviewsEntry.COLUMN_CONTENT
     };
-
     static final int COLUMN_AUTHOR=2;
     static final int COLUMN_CONTENT=3;
-    static final int COLUMN_TRAILER_URL=9;
+    static final String[] trailersProjection={
+            MovieContract.TrailersEntry.TABLE_NAME+"."+MovieContract.TrailersEntry._ID,
+            MovieContract.TrailersEntry.TABLE_NAME+"."+MovieContract.TrailersEntry.COLUMN_MOVIE_ID+" AS trailersId",
+            MovieContract.TrailersEntry.COLUMN_TRAILER_URL
+    };
+
+    static final int COLUMN_TRAILER_URL=2;
     private String getSortBy(){
         SharedPreferences prefs= PreferenceManager.getDefaultSharedPreferences(getContext());
         String sortBy=prefs.getString("sort_by_key","popular");
@@ -71,11 +77,10 @@ public class DetailActivityFragment extends Fragment implements LoaderManager.Lo
     }
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        Log.d(LOG_TAG,"1");
         getLoaderManager().initLoader(LOADER_MOVIE_ID,null,this);
-        Log.d(LOG_TAG,"1.1");
         getLoaderManager().initLoader(LOADER_REVIEW_ID,null,this);
-        Log.d(LOG_TAG,"1.2");
+        getLoaderManager().initLoader(LOADER_TRAILER_ID,null,this);
+
         super.onActivityCreated(savedInstanceState);
     }
     DetailActivityAdapter detailActivityAdapter;
@@ -91,6 +96,7 @@ public class DetailActivityFragment extends Fragment implements LoaderManager.Lo
         View rootView=inflater.inflate(R.layout.fragment_detail, container, false);
         detailActivityAdapter=new DetailActivityAdapter(getContext(),null,0);
         reviewsAdapter=new ReviewsAdapter(getContext(),null,0);
+        trailersAdapter=new TrailersAdapter(getContext(),null,0);
         Intent intent=getActivity().getIntent();
         if(intent!=null){
             Toast.makeText(getContext(),intent.getDataString(),Toast.LENGTH_SHORT).show();
@@ -99,6 +105,10 @@ public class DetailActivityFragment extends Fragment implements LoaderManager.Lo
             //View view=inflater.inflate(R.layout.movieview,container,false);
             Log.d(LOG_TAG,"2");
             linearLayout=(ListView) rootView.findViewById(R.id.detailedView);
+            mergeAdapter.addAdapter(detailActivityAdapter);
+            mergeAdapter.addAdapter(reviewsAdapter);
+            mergeAdapter.addAdapter(trailersAdapter);
+            //linearLayout.addView();
             linearLayout.setAdapter(mergeAdapter);
             //linearLayout.setAdapter(detailActivityAdapter);
 
@@ -116,7 +126,9 @@ public class DetailActivityFragment extends Fragment implements LoaderManager.Lo
                 Log.d(LOG_TAG,"4");
                 Uri reviewUri= MovieContract.ReviewsEntry.buildUriFromID(movieId);
                 return new CursorLoader(getContext(),reviewUri,reviewsProjection,null,null,null);
-
+            case LOADER_TRAILER_ID:
+                Uri trailerUri= MovieContract.TrailersEntry.buildUriFromMovieId(movieId);
+                return new CursorLoader(getContext(),trailerUri,trailersProjection,null,null,null);
         }
         return null;
 
@@ -129,12 +141,15 @@ public class DetailActivityFragment extends Fragment implements LoaderManager.Lo
             case LOADER_MOVIE_ID:
                 Log.d(LOG_TAG,"5");
                 detailActivityAdapter.swapCursor(data);
-                mergeAdapter.addAdapter(detailActivityAdapter);
                 break;
             case LOADER_REVIEW_ID:
                 Log.d(LOG_TAG,"6");
                 reviewsAdapter.swapCursor(data);
-                mergeAdapter.addAdapter(reviewsAdapter);
+                break;
+            case LOADER_TRAILER_ID:
+                trailersAdapter.swapCursor(data);
+                break;
+
 
         }
         //detailActivityAdapter.
