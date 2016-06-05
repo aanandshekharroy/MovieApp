@@ -2,10 +2,12 @@ package com.example.theseus.movieapp;
 
 import android.annotation.TargetApi;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.provider.BaseColumns;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -20,6 +22,7 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.commonsware.cwac.merge.MergeAdapter;
 import com.example.theseus.movieapp.data.MovieContract;
 
 /**
@@ -27,40 +30,64 @@ import com.example.theseus.movieapp.data.MovieContract;
  */
 public class DetailActivityFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
     final String LOG_TAG=DetailActivityFragment.class.getSimpleName();
-
-    @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        getLoaderManager().initLoader(LOADER_ID,null,this);
-        super.onActivityCreated(savedInstanceState);
-    }
-    DetailActivityAdapter detailActivityAdapter;
-    private static final int LOADER_ID=0;
-    public DetailActivityFragment() {
-    }
+    private static final int LOADER_MOVIE_ID=0;
+    private static final int LOADER_REVIEW_ID=1;
+    private static final int LOADER_TRAILER_ID=2;
+    ListView linearLayout;
+    ReviewsAdapter reviewsAdapter;
+    TrailersAdapter trailersAdapter;
     Uri movieUri;
+    String movieId;
+    MergeAdapter mergeAdapter=new MergeAdapter();
     static final String[] movieProjections={
             //MovieContract.MoviesEntry.TABLE_NAME+"."+MovieContract.MoviesEntry.COLUMN_MOVIE_ID+" AS "+ BaseColumns._ID,
             MovieContract.MoviesEntry.TABLE_NAME+"."+MovieContract.MoviesEntry._ID,
-            MovieContract.MoviesEntry.TABLE_NAME+"."+MovieContract.MoviesEntry.COLUMN_MOVIE_ID,
+            MovieContract.MoviesEntry.TABLE_NAME+"."+MovieContract.MoviesEntry.COLUMN_MOVIE_ID+" As moviesId" ,
             MovieContract.MoviesEntry.COLUMN_TITLE,
             MovieContract.MoviesEntry.COLUMN_SYNOPSIS,
             MovieContract.MoviesEntry.COLUMN_VOTES_AVG,
             MovieContract.MoviesEntry.COLUMN_RELEASE_DATE,
-            MovieContract.MoviesEntry.COLUMN_POSTER,
-            MovieContract.ReviewsEntry.COLUMN_AUTHOR,
-            MovieContract.ReviewsEntry.COLUMN_CONTENT,
-            MovieContract.TrailersEntry.COLUMN_TRAILER_URL
+            MovieContract.MoviesEntry.COLUMN_POSTER
     };
-
     static final int COLUMN_MOVIE_ID=1;
     static final int COLUMN_TITLE=2;
     static final int COLUMN_SYNOPSIS=3;
     static final int COLUMN_VOTES_AVG=4;
     static final int COLUMN_RELEASE_DATE=5;
     static final int COLUMN_POSTER=6;
-    static final int COLUMN_AUTHOR=7;
-    static final int COLUMN_CONTENT=8;
-    static final int COLUMN_TRAILER_URL=9;
+    static final String[] reviewsProjection={
+            MovieContract.ReviewsEntry.TABLE_NAME+"."+MovieContract.ReviewsEntry._ID,
+            MovieContract.ReviewsEntry.TABLE_NAME+"."+MovieContract.ReviewsEntry.COLUMN_MOVIE_ID+" AS reviewsId",
+            MovieContract.ReviewsEntry.COLUMN_AUTHOR,
+            MovieContract.ReviewsEntry.COLUMN_CONTENT
+    };
+    static final int COLUMN_AUTHOR=2;
+    static final int COLUMN_CONTENT=3;
+    static final String[] trailersProjection={
+            MovieContract.TrailersEntry.TABLE_NAME+"."+MovieContract.TrailersEntry._ID,
+            MovieContract.TrailersEntry.TABLE_NAME+"."+MovieContract.TrailersEntry.COLUMN_MOVIE_ID+" AS trailersId",
+            MovieContract.TrailersEntry.COLUMN_TRAILER_URL
+    };
+
+    static final int COLUMN_TRAILER_URL=2;
+    private String getSortBy(){
+        SharedPreferences prefs= PreferenceManager.getDefaultSharedPreferences(getContext());
+        String sortBy=prefs.getString("sort_by_key","popular");
+        return sortBy;
+    }
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        getLoaderManager().initLoader(LOADER_MOVIE_ID,null,this);
+        getLoaderManager().initLoader(LOADER_REVIEW_ID,null,this);
+        getLoaderManager().initLoader(LOADER_TRAILER_ID,null,this);
+
+        super.onActivityCreated(savedInstanceState);
+    }
+    DetailActivityAdapter detailActivityAdapter;
+
+    public DetailActivityFragment() {
+    }
+
 
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     @Override
@@ -68,32 +95,78 @@ public class DetailActivityFragment extends Fragment implements LoaderManager.Lo
                              Bundle savedInstanceState) {
         View rootView=inflater.inflate(R.layout.fragment_detail, container, false);
         detailActivityAdapter=new DetailActivityAdapter(getContext(),null,0);
+        reviewsAdapter=new ReviewsAdapter(getContext(),null,0);
+        trailersAdapter=new TrailersAdapter(getContext(),null,0);
         Intent intent=getActivity().getIntent();
         if(intent!=null){
-            Toast.makeText(getContext(),intent.getDataString(),Toast.LENGTH_SHORT).show();
+//            Toast.makeText(getContext(),intent.getDataString(),Toast.LENGTH_SHORT).show();
             movieUri=intent.getData();
+            movieId= MovieContract.MoviesEntry.getMovieIdFromUri(movieUri);
             //View view=inflater.inflate(R.layout.movieview,container,false);
-            ListView linearLayout=(ListView) rootView.findViewById(R.id.detailedView);
-            linearLayout.setAdapter(detailActivityAdapter);
+            Log.d(LOG_TAG,"2");
+            linearLayout=(ListView) rootView.findViewById(R.id.detailedView);
+            mergeAdapter.addAdapter(detailActivityAdapter);
+            mergeAdapter.addAdapter(reviewsAdapter);
+            mergeAdapter.addAdapter(trailersAdapter);
+            //linearLayout.addView();
+            linearLayout.setAdapter(mergeAdapter);
+            //linearLayout.setAdapter(detailActivityAdapter);
+
         }
         return rootView;
     }
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        switch (id){
+            case LOADER_MOVIE_ID:
+                Log.d(LOG_TAG,"3");
+                return new CursorLoader(getActivity(),movieUri,movieProjections,null,null,null);
+            case LOADER_REVIEW_ID:
+                Log.d(LOG_TAG,"4");
+                Uri reviewUri= MovieContract.ReviewsEntry.buildUriFromID(movieId);
+                return new CursorLoader(getContext(),reviewUri,reviewsProjection,null,null,null);
+            case LOADER_TRAILER_ID:
+                Uri trailerUri= MovieContract.TrailersEntry.buildUriFromMovieId(movieId);
+                return new CursorLoader(getContext(),trailerUri,trailersProjection,null,null,null);
+        }
+        return null;
 
-        return new CursorLoader(getActivity(),movieUri,movieProjections,null,null,null);
     }
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        detailActivityAdapter.swapCursor(data);
+        switch (loader.getId()){
+            case LOADER_MOVIE_ID:
+                Log.d(LOG_TAG,"5");
+                detailActivityAdapter.swapCursor(data);
+                break;
+            case LOADER_REVIEW_ID:
+                Log.d(LOG_TAG,"6");
+                reviewsAdapter.swapCursor(data);
+                break;
+            case LOADER_TRAILER_ID:
+                trailersAdapter.swapCursor(data);
+                break;
+
+
+        }
+        //detailActivityAdapter.
     }
 
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
-
+        switch (loader.getId()){
+            case LOADER_MOVIE_ID:
+                Log.d(LOG_TAG,"7");
+                detailActivityAdapter.swapCursor(null);
+                break;
+            case LOADER_REVIEW_ID:
+                Log.d(LOG_TAG,"8");
+                reviewsAdapter.swapCursor(null);
+        }
     }
     /*@TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     private void setMarkAsFavourite(View rootView, final String movieId, String sortBy) {
@@ -136,119 +209,7 @@ public class DetailActivityFragment extends Fragment implements LoaderManager.Lo
                 //seeAllFavouriteMovie();
             }
         });
-    }
-
-    private void setReviews(View rootView, String movieId) {
-        Cursor cursor=getContext().getContentResolver().query(MovieContract.ReviewsEntry.buildUriFromID(movieId), null, null, null, null);
-        try {
-            if(cursor.moveToFirst()){
-
-                List<Reviews> reviewsList=new ArrayList<>();
-                do{
-                    reviewsList.add(new Reviews(cursor.getString(1), cursor.getString(2)));
-                    //Log.d(LOG_TAG,"reviews: movieId"+cursor.getString(0)+", author: "+cursor.getString(1)+", content: "+cursor.getString(2));
-                }while (cursor.moveToNext());
-                //Log.d(LOG_TAG," No of reviews: "+reviewsList.size());
-                ListView reviewsListView=(ListView)rootView.findViewById(R.id.reviews_list);
-                ReviewsAdapter reviewsAdapter=new ReviewsAdapter(getActivity(), reviewsList);
-                reviewsListView.setAdapter(reviewsAdapter);
-                setListViewHeightBasedOnChildren(reviewsListView);
-            }
-        }finally {
-            cursor.close();
-        }
-    }
-    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
-    private void setTrailers(View rootView, final String movieId) {
-        //new MainActivityFragment.FetchTrailersAndReviews().execute(movieId);
-        Cursor cursor=getContext().getContentResolver().query(MovieContract.TrailersEntry.buildUriFromMovieId(movieId), null, null, null, null, null);
-        //Log.d(LOG_TAG,"cursor size in trailers: "+cursor.getCount());
-        try{
-            if(cursor.moveToFirst()){
-                List<String> trailerNumbering=new ArrayList<>();
-                int i=0;
-                do{
-                    trailerNumbering.add("Trailer "+(i+1));
-                    i++;
-                }while (cursor.moveToNext());
-                ListView trailersList=(ListView)rootView.findViewById(R.id.trailers_list);
-                ArrayAdapter<String> trailerAdapter=new ArrayAdapter<String>(getActivity(),R.layout.trailer,R.id.trailerLabel, trailerNumbering);
-                trailersList.setAdapter(trailerAdapter);
-                setListViewHeightBasedOnChildren(trailersList);
-                trailersList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                        Cursor cursor=getContext().getContentResolver().query(MovieContract.TrailersEntry.buildUriFromMovieId(movieId),null,null,null,null);
-                        if(cursor.moveToPosition(position)){
-                            Uri trailerUri=Uri.parse(cursor.getString(1));
-                            Intent youtubeIntent=new Intent(Intent.ACTION_VIEW,trailerUri);
-                            startActivity(youtubeIntent);
-                        }
-                    }
-                });
-            }
-        }finally {
-            cursor.close();
-        }
-
-
-    }
-
-    private void setMovieDetails(View rootView, String movieId, String sortBy) {
-        Cursor cursor=null;
-
-        try{
-            cursor=getContext().getContentResolver().query(MovieContract.MoviesEntry.
-                    buildUriFromSortOrderAndMovieId(sortBy,movieId),movieProjections,null,null,null);
-            if(cursor.moveToFirst()){
-                TextView title=(TextView)rootView.findViewById(R.id.title);
-                title.setText(cursor.getString(COLUMN_TITLE));
-                //set poster of movie
-                String url="http://image.tmdb.org/t/p/w185/"+cursor.getString(COLUMN_POSTER);
-                ImageView poster=(ImageView)rootView.findViewById(R.id.thumbnail);
-                poster.setLayoutParams(new LinearLayout.LayoutParams(400, 280));
-                poster.setScaleType(ImageView.ScaleType.CENTER_CROP);
-                poster.setPadding(30, 30, 20, 20);
-                Picasso.with(getActivity()).load(url).into(poster);
-                //Set synopsis of movie
-                TextView overview=(TextView)rootView.findViewById(R.id.overview);
-                overview.setText(cursor.getString(COLUMN_SYNOPSIS));
-                //Set release date
-                TextView releseDate=(TextView)rootView.findViewById(R.id.releaseDate);
-                releseDate.setText(cursor.getString(COLUMN_RELEASE_DATE));
-                //set raings of movie
-                TextView userRating=(TextView)rootView.findViewById(R.id.ratings);
-                userRating.setText(cursor.getString(COLUMN_VOTES_AVG)+"/10");
-            }
-        }finally {
-            if (cursor != null) {
-                cursor.close();
-            }
-        }
-
-    }
-
-
-
-    public static void setListViewHeightBasedOnChildren(ListView listView) {
-        ListAdapter listAdapter = listView.getAdapter();
-
-        if (listAdapter == null)
-            return;
-
-        int desiredWidth = View.MeasureSpec.makeMeasureSpec(listView.getWidth(), View.MeasureSpec.UNSPECIFIED);
-        int totalHeight = 0;
-        View view = null;
-        for (int i = 0; i < listAdapter.getCount(); i++) {
-            view = listAdapter.getView(i, view, listView);
-            if (i == 0)
-                view.setLayoutParams(new ViewGroup.LayoutParams(desiredWidth, ViewGroup.LayoutParams.WRAP_CONTENT));
-
-            view.measure(desiredWidth, View.MeasureSpec.UNSPECIFIED);
-            totalHeight += view.getMeasuredHeight();
-        }
-        ViewGroup.LayoutParams params = listView.getLayoutParams();
-        params.height = totalHeight + (listView.getDividerHeight() * (listAdapter.getCount() - 1));
-        listView.setLayoutParams(params);
     }*/
+
+
 }

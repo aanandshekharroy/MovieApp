@@ -23,6 +23,15 @@ android {
     repositories {
         mavenCentral()
     }
+    repositories {
+        maven {
+            url "https://s3.amazonaws.com/repo.commonsware.com"
+        }
+    }
+
+    dependencies {
+        compile 'com.commonsware.cwac:merge:1.1.+'
+    }
 
 }
 

@@ -53,9 +53,10 @@ public class MovieProvider extends ContentProvider {
         " ON "+MovieContract.ReviewsEntry.TABLE_NAME+"."+MovieContract.ReviewsEntry.COLUMN_MOVIE_ID+" = "+
         MovieContract.MoviesEntry.TABLE_NAME+"."+MovieContract.MoviesEntry.COLUMN_MOVIE_ID);
         trailersQueryBuilder=new SQLiteQueryBuilder();
-        trailersQueryBuilder.setTables(MovieContract.TrailersEntry.TABLE_NAME+" INNER JOIN "+MovieContract.MoviesEntry.TABLE_NAME+
-                " ON "+MovieContract.TrailersEntry.TABLE_NAME+"."+MovieContract.TrailersEntry.COLUMN_MOVIE_ID+" = "+
-                MovieContract.MoviesEntry.TABLE_NAME+"."+MovieContract.MoviesEntry.COLUMN_MOVIE_ID);
+//        trailersQueryBuilder.setTables(MovieContract.TrailersEntry.TABLE_NAME+" INNER JOIN "+MovieContract.MoviesEntry.TABLE_NAME+
+//                " ON "+MovieContract.TrailersEntry.TABLE_NAME+"."+MovieContract.TrailersEntry.COLUMN_MOVIE_ID+" = "+
+//                MovieContract.MoviesEntry.TABLE_NAME+"."+MovieContract.MoviesEntry.COLUMN_MOVIE_ID);
+        trailersQueryBuilder.setTables(MovieContract.TrailersEntry.TABLE_NAME);
         favouriteMovieQueryBuilder=new SQLiteQueryBuilder();
         favouriteMovieQueryBuilder.setTables(MovieContract.FavouritesEntry.TABLE_NAME+" INNER JOIN "+ MovieContract.MoviesEntry.TABLE_NAME+
         " ON "+ MovieContract.FavouritesEntry.TABLE_NAME+"."+ MovieContract.FavouritesEntry.COLUMN_MOVIE_ID+" = "+
@@ -113,7 +114,7 @@ public class MovieProvider extends ContentProvider {
     @Override
     public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
         int match=uriMatcher.match(uri);
-        //Log.d(LOG_TAG,"query uri matcher: "+match+",as uri= "+uri.toString());
+        Log.d(LOG_TAG,"query uri matcher: "+match+",as uri= "+uri.toString());
         Cursor retCursor=null;
         switch (match){
             case FAVOURITE_MOVIE_WITH_ID:
@@ -124,6 +125,7 @@ public class MovieProvider extends ContentProvider {
                 break;
             case MOVIE_WITH_ID:
                 retCursor=getMoviesFromId(uri, projection, sortOrder);
+
                 break;
             case REVIEWS_WITH_ID:
                 retCursor=getReviewsFromId(uri, projection, sortOrder);
@@ -138,6 +140,7 @@ public class MovieProvider extends ContentProvider {
                 retCursor=reviewsQueryBuilder.query(mDBHelper.getReadableDatabase(),projection,null,null,null,null,sortOrder);
                 break;
         }
+        Log.d(LOG_TAG,"\ncursor sixe: "+retCursor.getCount()+",columns: "+retCursor.toString());
         return retCursor;
     }
 
@@ -163,7 +166,7 @@ public class MovieProvider extends ContentProvider {
             +"."+ MovieContract.FavouritesEntry.COLUMN_MOVIE_ID+" = ? ",new String[]{movieId},null,null
             ,sortOrder);
         }
-        return movieDetail.query(mDBHelper.getReadableDatabase(),projection,movieSelectionById,new String[]{sortBy,movieId},null,null,sortOrder);
+        return movieQueryBuilder.query(mDBHelper.getReadableDatabase(),projection,movieSelectionById,new String[]{sortBy,movieId},null,null,sortOrder);
     }
     private Cursor getMoviesFromGenre(Uri uri, String[] projection, String sortOrder){
         String sortBy= MovieContract.MoviesEntry.getSortByFromUri(uri);
@@ -301,8 +304,11 @@ public class MovieProvider extends ContentProvider {
         }
         return super.bulkInsert(uri, values);
     }
+
     private Cursor getTrailersFromId(Uri uri, String[] projection, String sortOrder) {
+        Log.d(LOG_TAG,"trailer url: "+uri.toString());
         String movieId=MovieContract.TrailersEntry.getMovieIdFromUri(uri);
+        Log.d(LOG_TAG,"trailer url movieId: "+movieId);
         return trailersQueryBuilder.query(mDBHelper.getReadableDatabase(), projection, trailersSelection, new String[]{movieId}, null, null, sortOrder);
     }
     @Override
