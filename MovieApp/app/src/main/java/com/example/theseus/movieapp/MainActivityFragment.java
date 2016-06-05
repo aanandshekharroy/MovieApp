@@ -46,8 +46,8 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
     GridView movieGrid=null;
     final String LOG_TAG=MainActivityFragment.class.getSimpleName();
     static final String[] movieProjections={
-            MovieContract.MoviesEntry._ID,
-            MovieContract.MoviesEntry.COLUMN_MOVIE_ID,
+            MovieContract.MoviesEntry.TABLE_NAME+"."+MovieContract.MoviesEntry._ID,
+            MovieContract.MoviesEntry.TABLE_NAME+"."+MovieContract.MoviesEntry.COLUMN_MOVIE_ID,
             MovieContract.MoviesEntry.COLUMN_TITLE,
             MovieContract.MoviesEntry.COLUMN_SYNOPSIS,
             MovieContract.MoviesEntry.COLUMN_VOTES_AVG,
@@ -72,22 +72,23 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
     @Override
     public void onStart() {
         super.onStart();
-        //seeAllFavouriteMovie();
+        seeAllFavouriteMovie();
         updateMovieGrid();
     }
     @Override
     public void onResume() {
         super.onStart();
-        //seeAllFavouriteMovie();
+        seeAllFavouriteMovie();
         updateMovieGrid();
     }
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     public void  seeAllFavouriteMovie(){
         //Log.d(LOG_TAG,"favourite movies:");
-        Cursor cursor=getContext().getContentResolver().query(MovieContract.FavouritesEntry.CONTENT_URI, null, null, null, null);
+        Cursor cursor=getContext().getContentResolver().query(MovieContract.FavouritesEntry.CONTENT_URI, movieProjections, null, null, null,null);
         if(cursor.moveToFirst()){
-            //Log.d(LOG_TAG,"No of favourites: "+cursor.getCount());
+            Log.d(LOG_TAG,"No of favourites: "+cursor.getCount());
             do{
-                Log.d(LOG_TAG,cursor.getString(0)+"\n"+cursor.getString(1)+"\n"+cursor.getString(2));
+                Log.d(LOG_TAG,cursor.getString(COLUMN_MOVIE_ID)+"\n"+cursor.getString(COLUMN_TITLE)+"\n");
             }while (cursor.moveToNext());
         }
         if (cursor!=null){
@@ -109,7 +110,10 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     private void updateMovieGrid() {
 
-        new FetchMovieData().execute(getSortBy());
+        if(!getSortBy().equals(MovieContract.FavouritesEntry.PATH_FAVOURITES)){
+            new FetchMovieData().execute(getSortBy());
+        }
+
     }
     static final String EXTRA_MOVIE_TITLE="com.example.theseus.movieapp";
     @Override
@@ -140,6 +144,10 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         String sortBy=getSortBy();
+        Toast.makeText(getContext(),getSortBy(),Toast.LENGTH_SHORT).show();
+        if(sortBy.equals(MovieContract.FavouritesEntry.PATH_FAVOURITES)){
+            Log.d(LOG_TAG,"sort-by-testing: "+sortBy);
+        }
         Uri movieByGenre= MovieContract.MoviesEntry.buildUriFromSortOrder(sortBy);
         return new CursorLoader(getActivity(),
                 movieByGenre,movieProjections,null,null,null);

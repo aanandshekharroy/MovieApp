@@ -41,14 +41,14 @@ public class TrailersAdapter extends CursorAdapter  {
     @Override
     public View newView(final Context context, Cursor cursor, ViewGroup parent) {
         View view= LayoutInflater.from(context).inflate(R.layout.trailer,parent,false);
-        ListView listView=(ListView)view.getParent();
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Toast.makeText(context,position,Toast.LENGTH_SHORT).show();
-            }
-        });
-        trailersUrl=cursor.getString(COLUMN_TRAILER_URL);
+//        ListView listView=(ListView)view.getParent();
+//        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+//            @Override
+//            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+//                Toast.makeText(context,position,Toast.LENGTH_SHORT).show();
+//            }
+//        });
+//        trailersUrl=cursor.getString(COLUMN_TRAILER_URL);
         return view;
     }
 

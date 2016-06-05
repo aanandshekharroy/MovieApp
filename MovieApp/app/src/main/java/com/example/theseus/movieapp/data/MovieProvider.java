@@ -19,6 +19,7 @@ public class MovieProvider extends ContentProvider {
     public static final int MOVIE_WITH_GENRE_POPULARITY=10;
     public static final int MOVIE_WITH_GENRE_TOP_RATED=11;
 
+    public static final int FAVOURITES=12;
     public static final int FAVOURITE_MOVIE_WITH_ID=13;
     public static final int MOVIE_WITH_ID=101;
 
@@ -37,26 +38,17 @@ public class MovieProvider extends ContentProvider {
     static final String TOPRATED="top_rated";
     static final String FAVOURITE="favourites";
     static {
-        movieDetail=new SQLiteQueryBuilder();
-        movieDetail.setTables(
-                MovieContract.MoviesEntry.TABLE_NAME+" LEFT JOIN "+ MovieContract.ReviewsEntry.TABLE_NAME+" ON "+
-                        MovieContract.MoviesEntry.TABLE_NAME+"."+ MovieContract.MoviesEntry.COLUMN_MOVIE_ID+" = "+
-                        MovieContract.ReviewsEntry.TABLE_NAME+"."+ MovieContract.ReviewsEntry.COLUMN_MOVIE_ID+" LEFT JOIN "+
-                        MovieContract.TrailersEntry.TABLE_NAME+" ON "+
-                        MovieContract.TrailersEntry.TABLE_NAME+"."+ MovieContract.TrailersEntry.COLUMN_MOVIE_ID+" = "+
-                        MovieContract.MoviesEntry.TABLE_NAME+"."+MovieContract.MoviesEntry.COLUMN_MOVIE_ID
-        );
         movieQueryBuilder=new SQLiteQueryBuilder();
         movieQueryBuilder.setTables(MovieContract.MoviesEntry.TABLE_NAME);
+
         reviewsQueryBuilder=new SQLiteQueryBuilder();
         reviewsQueryBuilder.setTables(MovieContract.ReviewsEntry.TABLE_NAME+" INNER JOIN "+MovieContract.MoviesEntry.TABLE_NAME+
         " ON "+MovieContract.ReviewsEntry.TABLE_NAME+"."+MovieContract.ReviewsEntry.COLUMN_MOVIE_ID+" = "+
         MovieContract.MoviesEntry.TABLE_NAME+"."+MovieContract.MoviesEntry.COLUMN_MOVIE_ID);
+
         trailersQueryBuilder=new SQLiteQueryBuilder();
-//        trailersQueryBuilder.setTables(MovieContract.TrailersEntry.TABLE_NAME+" INNER JOIN "+MovieContract.MoviesEntry.TABLE_NAME+
-//                " ON "+MovieContract.TrailersEntry.TABLE_NAME+"."+MovieContract.TrailersEntry.COLUMN_MOVIE_ID+" = "+
-//                MovieContract.MoviesEntry.TABLE_NAME+"."+MovieContract.MoviesEntry.COLUMN_MOVIE_ID);
         trailersQueryBuilder.setTables(MovieContract.TrailersEntry.TABLE_NAME);
+
         favouriteMovieQueryBuilder=new SQLiteQueryBuilder();
         favouriteMovieQueryBuilder.setTables(MovieContract.FavouritesEntry.TABLE_NAME+" INNER JOIN "+ MovieContract.MoviesEntry.TABLE_NAME+
         " ON "+ MovieContract.FavouritesEntry.TABLE_NAME+"."+ MovieContract.FavouritesEntry.COLUMN_MOVIE_ID+" = "+
@@ -72,15 +64,15 @@ public class MovieProvider extends ContentProvider {
         //matcher.addURI(authority,MovieContract.PATH_MOVIE+"/"+TOPRATED,MOVIE_WITH_GENRE_TOP_RATED);
         //matcher.addURI(authority,MovieContract.PATH_MOVIE+"/"+FAVOURITE,MOVIE_WITH_GENRE_FAVOURITE);
         matcher.addURI(authority,"movies/*",MOVIE_WITH_GENRE);
-
-        //matcher.addURI(authority,"movies/favourite/*",FAVOURITE_MOVIE_WITH_ID);
         matcher.addURI(authority,"movies/*/#",MOVIE_WITH_ID);
-        //just did on 2 jun
-        //matcher.addURI(authority,MovieContract.PATH_MOVIE+"/"+TOPRATED+"/*",MOVIE_WITH_ID);
+
+        matcher.addURI(authority, MovieContract.FavouritesEntry.PATH_FAVOURITES,FAVOURITES);
+        matcher.addURI(authority, MovieContract.FavouritesEntry.PATH_FAVOURITES+"/*",FAVOURITE_MOVIE_WITH_ID);
 
 
         matcher.addURI(authority,MovieContract.PATH_REVIEWS,REVIEWS);
         matcher.addURI(authority,MovieContract.PATH_REVIEWS+"/*",REVIEWS_WITH_ID);
+
         matcher.addURI(authority,MovieContract.PATH_TRAILERS,TRAILERS);
         matcher.addURI(authority,MovieContract.PATH_TRAILERS+"/*",TRAILERS_WITH_ID);
         return matcher;
@@ -117,6 +109,9 @@ public class MovieProvider extends ContentProvider {
         Log.d(LOG_TAG,"query uri matcher: "+match+",as uri= "+uri.toString());
         Cursor retCursor=null;
         switch (match){
+            case FAVOURITES:
+                retCursor=favouriteMovieQueryBuilder.query(mDBHelper.getReadableDatabase(),projection,null,null,null,null,null,sortOrder);
+                break;
             case FAVOURITE_MOVIE_WITH_ID:
                 retCursor=getFavouriteMovieFromId(uri, projection, sortOrder);
                 break;
@@ -211,13 +206,14 @@ public class MovieProvider extends ContentProvider {
         Uri retUri = null;
         final SQLiteDatabase db=mDBHelper.getWritableDatabase();
         switch (match){
+            case FAVOURITE_MOVIE_WITH_ID:
+                long id=db.insert(MovieContract.FavouritesEntry.TABLE_NAME,null,values);
+                retUri=uri;
+                break;
             case MOVIE_WITH_ID:
                 String movieId= MovieContract.FavouritesEntry.getMovieIdFromUri(uri);
                 ContentValues c=new ContentValues();
                 c.put(MovieContract.FavouritesEntry.COLUMN_MOVIE_ID, movieId);
-
-                long id=db.insert(MovieContract.FavouritesEntry.TABLE_NAME,null,c);
-               // Log.d(LOG_TAG,"inseting in favourites"+c.toString()+" ,id= "+id);
                 seeAllFavouriteMovie();
                 retUri=uri;
                 break;
@@ -318,13 +314,13 @@ public class MovieProvider extends ContentProvider {
         }
         int match=uriMatcher.match(uri);
         switch (match){
-            case MOVIE_WITH_ID:
+            case FAVOURITE_MOVIE_WITH_ID:
                 long id=mDBHelper.getWritableDatabase().delete(MovieContract.FavouritesEntry.TABLE_NAME, MovieContract.FavouritesEntry.COLUMN_MOVIE_ID+" = ?",
                         new String[]{MovieContract.FavouritesEntry.getMovieIdFromUri(uri)});
-                //Log.d(LOG_TAG,"deleted: "+id);
-                break;
+                Log.d(LOG_TAG,"deleted-id: "+id);
+                return (int) id;
         }
-        return 0;
+        return -1;
     }
 
     @Override

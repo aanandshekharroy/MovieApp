@@ -1,8 +1,10 @@
 package com.example.theseus.movieapp;
 
 import android.annotation.TargetApi;
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Build;
 import android.provider.BaseColumns;
 import android.support.v4.content.Loader;
@@ -10,11 +12,13 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.CursorAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.theseus.movieapp.data.MovieContract;
 import com.squareup.picasso.Picasso;
@@ -29,6 +33,8 @@ import java.util.List;
 public class DetailActivityAdapter extends CursorAdapter {
 
     private static final String LOG_TAG=DetailActivityAdapter.class.getSimpleName();
+    private static final String NOT_FAVOURITE_BUTTON_LABEL="Add to favourites";
+    private static final String FAVOURITE_BUTTON_LABEL="Remove from favourites";
     String movieId;
     Context mContext;
     public static View detailView=null;
@@ -67,26 +73,13 @@ public class DetailActivityAdapter extends CursorAdapter {
     @Override
     public View newView(Context context, Cursor cursor, ViewGroup parent) {
         View view = LayoutInflater.from(context).inflate(R.layout.movieview,parent,false);
-//        if(detailView!=null){
-//            return detailView;
-//        }
-
-//        String tableName =cursor.getColumnName(COLUMN_MOVIE_ID);
-//        Log.d(LOG_TAG,"table name= "+tableName);
-//
-//        if(tableName.contains(MovieContract.MoviesEntry.TABLE_NAME)){
-//
-//        }else if(tableName.contains(MovieContract.ReviewsEntry.TABLE_NAME)){
-//            view=LayoutInflater.from(context).inflate(R.layout.reviews,parent,false);
-//        }
-
         return view;
     }
 
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     @Override
-    public void bindView(View view, Context context, Cursor cursor) {
+    public void bindView(View view, final Context context, final Cursor cursor) {
         //
         // cursor.
         String tableName =cursor.getColumnName(COLUMN_MOVIE_ID);
@@ -104,68 +97,82 @@ public class DetailActivityAdapter extends CursorAdapter {
             Picasso.with(context).load(url).into(poster);
             TextView votes=(TextView)view.findViewById(R.id.votes);
             votes.setText(cursor.getString(COLUMN_VOTES_AVG));
+            favouriteButton(context,view,cursor.getString(COLUMN_MOVIE_ID));
         }
-        detailView=view;
-//        else if (tableName.contains(MovieContract.ReviewsEntry.TABLE_NAME)){
-//            TextView author=(TextView)view.findViewById(R.id.author);
-//            author.setText(cursor.getString(COLUMN_AUTHOR));
-//            TextView content=(TextView)view.findViewById(R.id.content);
-//            content.setText(cursor.getString(COLUMN_CONTENT));
-//
-//
-////            LinearLayout.LayoutParams params=new LinearLayout.LayoutParams(
-////                    LinearLayout.LayoutParams.MATCH_PARENT,
-////                    LinearLayout.LayoutParams.WRAP_CONTENT);
-////
-////            LinearLayout reviewsLayout=(LinearLayout)view.findViewById(R.id.reviewsLayout);
-////
-////                cursor.moveToFirst();
-////                do{
-////                    authorTextView.setLayoutParams(params);
-////                    String content=cursor.getString(COLUMN_CONTENT);
-////                    TextView contentTextView=new TextView(context);
-////                    contentTextView.setText(content);
-////                    contentTextView.setLayoutParams(params);
-////                    reviewsLayout.addView(authorTextView);
-////                    reviewsLayout.addView(contentTextView);
-////                }while (cursor.moveToNext());
-//
-//        }
-//        cursor.moveToFirst();
-//        LinearLayout reviewsLayout= (LinearLayout) view.findViewById(R.id.reviewsLayout);
-//        String prevAuthor="";
-//        LinearLayout trailersLayout=(LinearLayout)view.findViewById(R.id.trailersLayout);
-//        String prevUrl="";
-//        HashSet<String> authors=new HashSet<>();
-//        HashSet<String> trailersUrl=new HashSet<>();
-//        do{
-//
-//            if(cursor.getString(COLUMN_AUTHOR)!=null&&!authors.contains(cursor.getString(COLUMN_AUTHOR))){
-//                authors.add(cursor.getString(COLUMN_AUTHOR));
-//                Log.d(LOG_TAG,"movie name: "+cursor.getString(COLUMN_TITLE)+"\nContent: "+cursor.getString(COLUMN_CONTENT)+"\n");
-//                LinearLayout.LayoutParams lparams = new LinearLayout.LayoutParams(
-//                        LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
-//                TextView author=new TextView(context);
-//                author.setLayoutParams(lparams);
-//                author.setText(cursor.getString(COLUMN_AUTHOR));
-//                TextView content=new TextView(context);
-//                content.setLayoutParams(lparams);
-//                content.setText(cursor.getString(COLUMN_CONTENT));
-//                reviewsLayout.addView(author);
-//                reviewsLayout.addView(content);
-//
-//            }
-//            if(cursor.getString(COLUMN_TRAILER_URL)!=null&&!trailersUrl.contains(cursor.getString(COLUMN_TRAILER_URL))){
-//
-//            }
-//        }while (cursor.moveToNext());
-//        cursor.moveToFirst();
     }
-}
 
-//            Log.d(LOG_TAG,"\nmovie : "+cursor.getString(COLUMN_TITLE)+"\n"
-//            +"synopsis: "+cursor.getString(COLUMN_SYNOPSIS)+"\n"+
-//            "votes avg: "+cursor.getString(COLUMN_VOTES_AVG)+"\n"+
-//            "uthor: "+cursor.getString(COLUMN_AUTHOR)+"\n"+
-//            "content: "+cursor.getString(COLUMN_CONTENT)+"\n"+
-//            "trailer-url"+cursor.getString(COLUMN_TRAILER_URL));
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
+    private void favouriteButton(final Context context, View view, final String movieId) {
+        final Button favouriteButton=(Button)view.findViewById(R.id.favourite);
+        final Uri favouriteUri= MovieContract.FavouritesEntry.buildUriFromMovieId(movieId);
+        Cursor favourite=context.getContentResolver().query(favouriteUri
+        ,movieProjections,null,null,null,null);
+        favourite.moveToFirst();
+        if(favourite.getCount()==0){
+            favouriteButton.setText(NOT_FAVOURITE_BUTTON_LABEL);
+        }else {
+            favouriteButton.setText(FAVOURITE_BUTTON_LABEL);
+        }
+        favouriteButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String isFavourite= (String) favouriteButton.getText();
+                if(isFavourite.equals(NOT_FAVOURITE_BUTTON_LABEL)){
+                    ContentValues cvalue=new ContentValues();
+                    cvalue.put(MovieContract.FavouritesEntry.COLUMN_MOVIE_ID,movieId);
+                    Uri retUri=context.getContentResolver().insert(favouriteUri,cvalue);
+                    if (retUri!=null){
+                        favouriteButton.setText(FAVOURITE_BUTTON_LABEL);
+                    }
+                }else {
+                    int id=context.getContentResolver().delete(favouriteUri,null,null);
+                    if(id!=-1){
+                        favouriteButton.setText(NOT_FAVOURITE_BUTTON_LABEL);
+                    }
+                }
+            }
+        });
+    }
+//    favouriteButton
+//    private void setMarkAsFavourite(View rootView, final String movieId, String sortBy) {
+//        final Uri uriWithMovieId= MovieContract.FavouritesEntry.buildUriFromMovieId(movieId);
+//        boolean isFavourite=false;
+//        Cursor cursor=null;
+//        cursor = getContext().getContentResolver().query(uriWithMovieId,new String[]{MovieContract.FavouritesEntry.TABLE_NAME
+//                +"."+ MovieContract.FavouritesEntry.COLUMN_MOVIE_ID},null,null,null,null);
+//
+//        if(cursor.moveToFirst()){
+//            isFavourite=true;
+//        }
+//        if(cursor!=null){
+//            cursor.close();
+//        }
+//        final Button favourite=(Button)rootView.findViewById(R.id.favourite);
+//        if(isFavourite){
+//            favourite.setText(R.string.removeFromFavourites);
+//        }else {
+//            favourite.setText(R.string.markAsFavourite);
+//        }
+//        favourite.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//
+//                Cursor cursor=null;
+//                cursor = getContext().getContentResolver().query(uriWithMovieId,new String[]{MovieContract.FavouritesEntry.TABLE_NAME
+//                        +"."+ MovieContract.FavouritesEntry.COLUMN_MOVIE_ID},null,null,null,null);
+//                if(!cursor.moveToFirst()){
+//                    favourite.setText(getString(R.string.removeFromFavourites));
+//                    getContext().getContentResolver().insert(uriWithMovieId,null);
+//
+//                }else{
+//                    favourite.setText(getString(R.string.markAsFavourite));
+//                    getContext().getContentResolver().delete(uriWithMovieId, null, null);
+//                }
+//                if(cursor!=null){
+//                    cursor.close();
+//                }
+//                //seeAllFavouriteMovie();
+//            }
+//        });
+//    }*/
+}

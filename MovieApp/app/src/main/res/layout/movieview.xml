@@ -42,7 +42,7 @@
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="New Button"
+        android:text="Mark as Favourite"
         android:id="@+id/favourite"
         android:layout_below="@+id/poster"
         android:layout_alignLeft="@+id/release_date"
