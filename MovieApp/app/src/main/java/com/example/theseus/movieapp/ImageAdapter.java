@@ -72,6 +72,6 @@ public class ImageAdapter extends CursorAdapter {
         Picasso.with(mContext).load(url).into((ImageView) view);
     }
 
-   
+
 
 }
