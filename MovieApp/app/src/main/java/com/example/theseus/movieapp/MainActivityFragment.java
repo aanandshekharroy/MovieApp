@@ -125,7 +125,7 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Cursor cursor=(Cursor) parent.getItemAtPosition(position);
-                Toast.makeText(getActivity(),"Clicked on = "+cursor.getString(COLUMN_TITLE),Toast.LENGTH_SHORT).show();
+//                Toast.makeText(getActivity(),"Clicked on = "+cursor.getString(COLUMN_TITLE),Toast.LENGTH_SHORT).show();
                 Uri movieIdUri=MovieContract.MoviesEntry.buildUriFromSortOrderAndMovieId(getSortBy(),cursor.getString(COLUMN_MOVIE_ID));
                 Intent detailActivity=new Intent(getContext(),DetailActivity.class).setData(movieIdUri);
 //                Cursor cursor2=getActivity().getContentResolver().query(movieIdUri,movieProjections,null,null,null,null);
