@@ -18,6 +18,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Toast;
@@ -33,7 +34,7 @@ public class DetailActivityFragment extends Fragment implements LoaderManager.Lo
     private static final int LOADER_MOVIE_ID=0;
     private static final int LOADER_REVIEW_ID=1;
     private static final int LOADER_TRAILER_ID=2;
-    ListView linearLayout;
+    ListView listView;
     ReviewsAdapter reviewsAdapter;
     TrailersAdapter trailersAdapter;
     Uri movieUri;
@@ -104,12 +105,25 @@ public class DetailActivityFragment extends Fragment implements LoaderManager.Lo
             movieId= MovieContract.MoviesEntry.getMovieIdFromUri(movieUri);
             //View view=inflater.inflate(R.layout.movieview,container,false);
             Log.d(LOG_TAG,"2");
-            linearLayout=(ListView) rootView.findViewById(R.id.detailedView);
+            listView=(ListView) rootView.findViewById(R.id.detailedView);
             mergeAdapter.addAdapter(detailActivityAdapter);
             mergeAdapter.addAdapter(reviewsAdapter);
             mergeAdapter.addAdapter(trailersAdapter);
             //linearLayout.addView();
-            linearLayout.setAdapter(mergeAdapter);
+            listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+                    Cursor cursor=(Cursor)parent.getItemAtPosition(position);
+                    String tableName=cursor.getColumnName(COLUMN_MOVIE_ID);
+                    if(tableName.contains(MovieContract.TrailersEntry.TABLE_NAME)){
+                        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(cursor.getString(COLUMN_TRAILER_URL))));
+
+                    }
+//                    Toast.makeText(getContext(),Integer.toString(cursor.getColumnCount()),Toast.LENGTH_SHORT).show();
+                }
+            });
+            listView.setAdapter(mergeAdapter);
             //linearLayout.setAdapter(detailActivityAdapter);
 
         }

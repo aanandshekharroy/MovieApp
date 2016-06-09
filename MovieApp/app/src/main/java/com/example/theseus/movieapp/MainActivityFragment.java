@@ -77,6 +77,7 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
     }
     @Override
     public void onResume() {
+        Toast.makeText(getContext(),"resumed on :"+getSortBy(),Toast.LENGTH_SHORT).show();
         super.onStart();
         seeAllFavouriteMovie();
         updateMovieGrid();
@@ -133,8 +134,6 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
 //                Toast.makeText(getActivity(),"Clicked on = "+cursor.getString(COLUMN_TITLE),Toast.LENGTH_SHORT).show();
                 Uri movieIdUri=MovieContract.MoviesEntry.buildUriFromSortOrderAndMovieId(getSortBy(),cursor.getString(COLUMN_MOVIE_ID));
                 Intent detailActivity=new Intent(getContext(),DetailActivity.class).setData(movieIdUri);
-//                Cursor cursor2=getActivity().getContentResolver().query(movieIdUri,movieProjections,null,null,null,null);
-//                Log.d(LOG_TAG,"cursor movie Id= "+cursor2.getCount()+", columns: "+cursor2.getColumnCount());
                 startActivity(detailActivity);
             }
         });
@@ -144,7 +143,9 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         String sortBy=getSortBy();
-        Toast.makeText(getContext(),getSortBy(),Toast.LENGTH_SHORT).show();
+        if(sortBy.equals(MovieContract.FavouritesEntry.TABLE_NAME)){
+            return new CursorLoader(getActivity(), MovieContract.FavouritesEntry.CONTENT_URI,movieProjections,null,null,null);
+        }
         if(sortBy.equals(MovieContract.FavouritesEntry.PATH_FAVOURITES)){
             Log.d(LOG_TAG,"sort-by-testing: "+sortBy);
         }
@@ -242,45 +243,16 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
             }
             return null;
         }
-        String[] MOVIES_COLUMNS={
-                MovieContract.MoviesEntry._ID,
-                MovieContract.MoviesEntry.COLUMN_MOVIE_ID,
-                MovieContract.MoviesEntry.COLUMN_TITLE,
-                MovieContract.MoviesEntry.COLUMN_SYNOPSIS,
-                MovieContract.MoviesEntry.COLUMN_VOTES_AVG,
-                MovieContract.MoviesEntry.COLUMN_RELEASE_DATE,
-                MovieContract.MoviesEntry.COLUMN_POSTER
-        };
-        int COLUMN_INDEX_MOVIE_ID=1;
-        int COLUMN_INDEX_MOVIE_TITLE=2;
-        int COLUMN_INDEX_MOVIE_SYNOPSIS=3;
-        int COLUMN_INDEX_MOVIE_VOTES_AVG=4;
-        int COLUMN_INDEX_MOVIE_RELEASE_DATE=5;
-        int COLUMN_INDEX_MOVIE_POSTER=6;
-
         @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
         @Override
         protected void onPostExecute(Uri uri){
-            Cursor cursor = null;
-            final String sortBy;
             if(uri==null){
-                sortBy=getSortBy();
+                uri= MovieContract.MoviesEntry.buildUriFromSortOrder(getSortBy());
+
             }else {
-                sortBy = MovieContract.MoviesEntry.getSortByFromUri(uri);
-            }
-
-
-            if(sortBy.equals("favourites")){
-                //mImageAdapter.
-                //movieGrid.setAdapter(mImageAdapter);
-                return;
-            }
-            try {
-                if(uri==null){
-                    //movieGrid.setAdapter(mImageAdapter);
-                    return;
-                }
-                cursor = mContext.getContentResolver().query(uri,new String[]{MovieContract.MoviesEntry.COLUMN_MOVIE_ID},null,null,null);
+                Cursor cursor=null;
+                try {
+                cursor = mContext.getContentResolver().query(uri,new String[]{MovieContract.MoviesEntry.COLUMN_MOVIE_ID},null,null,null,null);
                 if(cursor.moveToFirst()){
                     do{
                         Log.d(LOG_TAG,"on post execute: movieId:"+cursor.getString(0));
@@ -293,6 +265,39 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
                     cursor.close();
                 }
             }
+            }
+//            Cursor cursor = null;
+//            final String sortBy;
+//            if(uri==null){
+//                sortBy=getSortBy();
+//            }else {
+//                sortBy = MovieContract.MoviesEntry.getSortByFromUri(uri);
+//            }
+//
+//
+//            if(sortBy.equals("favourites")){
+//                //mImageAdapter.
+//                //movieGrid.setAdapter(mImageAdapter);
+//                return;
+//            }
+//            try {
+//                if(uri==null){
+//                    //movieGrid.setAdapter(mImageAdapter);
+//                    return;
+//                }
+//                cursor = mContext.getContentResolver().query(uri,new String[]{MovieContract.MoviesEntry.COLUMN_MOVIE_ID},null,null,null);
+//                if(cursor.moveToFirst()){
+//                    do{
+//                        Log.d(LOG_TAG,"on post execute: movieId:"+cursor.getString(0));
+//                        new FetchTrailersAndReviews().execute(cursor.getString(0));
+//                }while (cursor.moveToNext());
+//
+//                }
+//            }finally {
+//                if (cursor != null) {
+//                    cursor.close();
+//                }
+//            }
 
         }
         private Uri jsonParser(String movieData) throws JSONException {
