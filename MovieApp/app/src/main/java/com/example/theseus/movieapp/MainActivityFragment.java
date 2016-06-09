@@ -60,7 +60,7 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
     static final int COLUMN_RELEASE_DATE=5;
     static final int COLUMN_POSTER=6;
     public MainActivityFragment() {
-        //setHasOptionsMenu(true);
+        setHasOptionsMenu(true);
     }
 
     @Override
@@ -68,34 +68,21 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
         getLoaderManager().initLoader(MOVIE_LOADER_ID, null, this);
         super.onActivityCreated(savedInstanceState);
     }
+    public void initializeLoader(){
+        getLoaderManager().initLoader(MOVIE_LOADER_ID, null, this);
+
+    }
     public ImageAdapter mImageAdapter;
     @Override
     public void onStart() {
-        super.onStart();
-        seeAllFavouriteMovie();
         updateMovieGrid();
+        super.onStart();
     }
     @Override
     public void onResume() {
-        Toast.makeText(getContext(),"resumed on :"+getSortBy(),Toast.LENGTH_SHORT).show();
         super.onStart();
-        seeAllFavouriteMovie();
-        updateMovieGrid();
     }
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
-    public void  seeAllFavouriteMovie(){
-        //Log.d(LOG_TAG,"favourite movies:");
-        Cursor cursor=getContext().getContentResolver().query(MovieContract.FavouritesEntry.CONTENT_URI, movieProjections, null, null, null,null);
-        if(cursor.moveToFirst()){
-            Log.d(LOG_TAG,"No of favourites: "+cursor.getCount());
-            do{
-                Log.d(LOG_TAG,cursor.getString(COLUMN_MOVIE_ID)+"\n"+cursor.getString(COLUMN_TITLE)+"\n");
-            }while (cursor.moveToNext());
-        }
-        if (cursor!=null){
-            cursor.close();
-        }
-    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -110,20 +97,17 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
     }
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     private void updateMovieGrid() {
-
-        if(!getSortBy().equals(MovieContract.FavouritesEntry.PATH_FAVOURITES)){
-            new FetchMovieData().execute(getSortBy());
-        }
+        new FetchMovieData().execute(getSortBy());
 
     }
     static final String EXTRA_MOVIE_TITLE="com.example.theseus.movieapp";
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        updateMovieGrid();
-        //getActivity().getWindow().requestFeature(Window.FEATURE_ACTION_BAR);
-        View rootView= inflater.inflate(R.layout.fragment_main, container, false);
+        Log.d(LOG_TAG,"step: 5");
         mImageAdapter=new ImageAdapter(getActivity(),null,0);
+        View rootView= inflater.inflate(R.layout.fragment_main, container, false);
+
         movieGrid=(GridView)rootView.findViewById(R.id.movieGrid);
         movieGrid.setAdapter(mImageAdapter);
         movieGrid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -131,7 +115,6 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Cursor cursor=(Cursor) parent.getItemAtPosition(position);
-//                Toast.makeText(getActivity(),"Clicked on = "+cursor.getString(COLUMN_TITLE),Toast.LENGTH_SHORT).show();
                 Uri movieIdUri=MovieContract.MoviesEntry.buildUriFromSortOrderAndMovieId(getSortBy(),cursor.getString(COLUMN_MOVIE_ID));
                 Intent detailActivity=new Intent(getContext(),DetailActivity.class).setData(movieIdUri);
                 startActivity(detailActivity);
@@ -146,9 +129,6 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
         if(sortBy.equals(MovieContract.FavouritesEntry.TABLE_NAME)){
             return new CursorLoader(getActivity(), MovieContract.FavouritesEntry.CONTENT_URI,movieProjections,null,null,null);
         }
-        if(sortBy.equals(MovieContract.FavouritesEntry.PATH_FAVOURITES)){
-            Log.d(LOG_TAG,"sort-by-testing: "+sortBy);
-        }
         Uri movieByGenre= MovieContract.MoviesEntry.buildUriFromSortOrder(sortBy);
         return new CursorLoader(getActivity(),
                 movieByGenre,movieProjections,null,null,null);
@@ -157,6 +137,7 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        Log.d(LOG_TAG,"step: 7");
         mImageAdapter.swapCursor(data);
 
     }
@@ -167,24 +148,19 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
         mImageAdapter.swapCursor(null);
 
     }
-
     class FetchMovieData extends AsyncTask<String,Void,Uri> {
         public final String LOG_TAG=FetchMovieData.class.getSimpleName();
         public final Context mContext=getContext();
         @Override
         protected Uri doInBackground(String... params) {
             String baseUrl = null;
-            //Log.d(LOG_TAG,"in do in background: "+params.toString());
             final String APP_KEY="api_key";
            // params[0]="popular";
-            if(params[0].equals("favourites")){
-                Log.d(LOG_TAG,"in popular:");
-                //baseUrl="http://api.themoviedb.org/3/movie/popular?";
+            if(params[0].contains(MovieContract.FavouritesEntry.TABLE_NAME)){
                 return MovieContract.FavouritesEntry.CONTENT_URI;
             }
-            else {
-                baseUrl="http://api.themoviedb.org/3/movie/"+params[0]+"?";
-            }
+            baseUrl="http://api.themoviedb.org/3/movie/"+params[0]+"?";
+
             Uri builtUri=Uri.parse(baseUrl).buildUpon()
                     .appendQueryParameter(APP_KEY,BuildConfig.MOVIE_API_KEY).build();
             HttpURLConnection urlConnection = null;
@@ -192,23 +168,18 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
             String movieData = null;
             try {
                 URL url=new URL(builtUri.toString());
-                //Log.d(LOG_TAG, "URL: " + url.toString());
                 urlConnection=(HttpURLConnection)url.openConnection();
                 urlConnection.setRequestMethod("GET");
                 urlConnection.connect();
                 InputStream inputStream=urlConnection.getInputStream();
                 StringBuffer buffer = new StringBuffer();
                 if (inputStream == null) {
-                    // Nothing to do.
                     return null;
                 }
                 reader = new BufferedReader(new InputStreamReader(inputStream));
 
                 String line;
                 while ((line = reader.readLine()) != null) {
-                    // Since it's JSON, adding a newline isn't necessary (it won't affect parsing)
-                    // But it does make debugging a *lot* easier if you print out the completed
-                    // buffer for debugging.
                     buffer.append(line + "\n");
                 }
 
@@ -217,7 +188,6 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
                     return null;
                 }
                 movieData = buffer.toString();
-                //Log.d(LOG_TAG,movieData);
             } catch (java.io.IOException e) {
                 e.printStackTrace();
             }
@@ -233,10 +203,7 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
                     }
                 }
             }
-            //Log.d(LOG_TAG,movieData);
-
             try {
-                //Log.d(LOG_TAG,"going to On post Execute");
                 return jsonParser(movieData);
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -246,72 +213,39 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
         @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
         @Override
         protected void onPostExecute(Uri uri){
-            if(uri==null){
-                uri= MovieContract.MoviesEntry.buildUriFromSortOrder(getSortBy());
+            Cursor cursor=null;
+            if(uri!=null){
+                if(uri.toString().contains(MovieContract.FavouritesEntry.TABLE_NAME)){
+                    cursor=mContext.getContentResolver().query(MovieContract.FavouritesEntry.CONTENT_URI,movieProjections,null,null,null,null);
+                    mImageAdapter.swapCursor(cursor);
+                }else{
+                    try {
+                        cursor = mContext.getContentResolver().query(uri,new String[]{MovieContract.MoviesEntry.COLUMN_MOVIE_ID},null,null,null,null);
+                        if(cursor.moveToFirst()){
+                            do{
+                                new FetchTrailersAndReviews().execute(cursor.getString(0));
+                            }while (cursor.moveToNext());
 
-            }else {
-                Cursor cursor=null;
-                try {
-                cursor = mContext.getContentResolver().query(uri,new String[]{MovieContract.MoviesEntry.COLUMN_MOVIE_ID},null,null,null,null);
-                if(cursor.moveToFirst()){
-                    do{
-                        Log.d(LOG_TAG,"on post execute: movieId:"+cursor.getString(0));
-                        new FetchTrailersAndReviews().execute(cursor.getString(0));
-                }while (cursor.moveToNext());
-
-                }
-            }finally {
-                if (cursor != null) {
-                    cursor.close();
+                        }
+                    }finally {
+                        if (cursor != null) {
+                            cursor.close();
+                        }
+                    }
                 }
             }
-            }
-//            Cursor cursor = null;
-//            final String sortBy;
-//            if(uri==null){
-//                sortBy=getSortBy();
-//            }else {
-//                sortBy = MovieContract.MoviesEntry.getSortByFromUri(uri);
-//            }
-//
-//
-//            if(sortBy.equals("favourites")){
-//                //mImageAdapter.
-//                //movieGrid.setAdapter(mImageAdapter);
-//                return;
-//            }
-//            try {
-//                if(uri==null){
-//                    //movieGrid.setAdapter(mImageAdapter);
-//                    return;
-//                }
-//                cursor = mContext.getContentResolver().query(uri,new String[]{MovieContract.MoviesEntry.COLUMN_MOVIE_ID},null,null,null);
-//                if(cursor.moveToFirst()){
-//                    do{
-//                        Log.d(LOG_TAG,"on post execute: movieId:"+cursor.getString(0));
-//                        new FetchTrailersAndReviews().execute(cursor.getString(0));
-//                }while (cursor.moveToNext());
-//
-//                }
-//            }finally {
-//                if (cursor != null) {
-//                    cursor.close();
-//                }
-//            }
-
+            uri= MovieContract.MoviesEntry.buildUriFromSortOrder(getSortBy());
+            cursor=mContext.getContentResolver().query(uri,movieProjections,null,null,null,null);
+            mImageAdapter.swapCursor(cursor);
         }
         private Uri jsonParser(String movieData) throws JSONException {
             if(movieData==null){
-                //Log.d(LOG_TAG,"jsonParse: movieData="+movieData);
                 return null;
             }
-            //Log.d(LOG_TAG,"jsonParse: "+movieData);
             JSONObject movies=new JSONObject(movieData);
             JSONArray movieArray=movies.getJSONArray("results");
-            //Log.d(LOG_TAG,"movieArrayLength="+movieArray.length());
             Vector<ContentValues> cvVector=new Vector<>(movieArray.length());
             for(int i=0;i<movieArray.length();i++){
-                //Log.d(LOG_TAG,"i="+i);
                 JSONObject movie=movieArray.getJSONObject(i);
                 ContentValues values=new ContentValues();
                 String calue="id="+movie.getString("id")+"\n"+
@@ -327,12 +261,8 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
                 values.put(MovieContract.MoviesEntry.COLUMN_RELEASE_DATE, movie.getString("release_date"));
                 values.put(MovieContract.MoviesEntry.COLUMN_POSTER,movie.getString("poster_path"));
                 values.put(MovieContract.MoviesEntry.COLUMN_SORT_BY,getSortBy());
-                //Log.d(LOG_TAG, " value: " + calue);
-                //Log.d(LOG_TAG,"inserted value: "+values.toString());
                 cvVector.add(values);
             }
-            //Log.d(LOG_TAG,"vector:size= "+cvVector.size());
-
             if(cvVector.size()>0){
                 ContentValues[] contentValuesArray=new ContentValues[cvVector.size()];
                 cvVector.toArray(contentValuesArray);
@@ -353,7 +283,6 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
             movieId=params[0];
             baseUrlTrailer="http://api.themoviedb.org/3/movie/";
             baseUrlReviews="http://api.themoviedb.org/3/movie/";
-            //http://api.themoviedb.org/3/movie/273248/reviews?api_key=0105153be6c50857f2ec1ac9a3f65741
             Uri builtUriTrailer=Uri.parse(baseUrlTrailer).buildUpon()
                     .appendPath(movieId)
                     .appendPath("videos")
@@ -364,11 +293,8 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
                     .appendQueryParameter(APP_KEY, BuildConfig.MOVIE_API_KEY).build();
 
             String trailersData=getJson(builtUriTrailer);
-            //Log.d(LOG_TAG,"do in background:" );
             String reviewsData=getJson(builtUriReviews);
-            //Log.d(LOG_TAG,"reviews json: \n"+reviewsData);
             try {
-                //Log.d(LOG_TAG,"trailers data: "+trailersData);
                 trailers(trailersData);
                 reviews(reviewsData);
             } catch (JSONException e) {
@@ -381,7 +307,6 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
             JSONObject jsonObject=new JSONObject(reviewsData);
             JSONArray reviewsArray=jsonObject.getJSONArray("results");
             Vector<ContentValues> cvVarray=new Vector<>(reviewsArray.length());
-            //Log.d(LOG_TAG,"No of reviews: "+reviewsArray.length());
             for(int i=0;i<reviewsArray.length();i++){
                 JSONObject Review=reviewsArray.getJSONObject(i);
                 ContentValues values=new ContentValues();
@@ -389,7 +314,6 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
                 values.put(MovieContract.ReviewsEntry.COLUMN_AUTHOR,Review.getString("author"));
                 values.put(MovieContract.ReviewsEntry.COLUMN_CONTENT,Review.getString("content"));
                 cvVarray.add(values);
-                //Log.d(LOG_TAG,"reviews: \n"+Review.getString("author")+"\n"+Review.getString("content"));
             }
             if(cvVarray.size()>0){
                 ContentValues[] contentValues=new ContentValues[cvVarray.size()];
@@ -402,7 +326,6 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
 
             JSONObject trailerObject=new JSONObject(trailer);
             JSONArray trailersArray=trailerObject.getJSONArray("results");
-            //Log.d(LOG_TAG,"No of trailers: "+trailersArray.length());
             String baseUrl="https://www.youtube.com/watch?v=";
             Vector<ContentValues> cvVector=new Vector<>(trailersArray.length());
             for (int i=0;i<trailersArray.length();i++){
@@ -410,9 +333,7 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
                 ContentValues values=new ContentValues();
                 values.put(MovieContract.TrailersEntry.COLUMN_MOVIE_ID, movieId);
                 values.put(MovieContract.TrailersEntry.COLUMN_TRAILER_URL, baseUrl + Trailer.getString("key"));
-                //Log.d(LOG_TAG,"content value trailer: "+values.toString());
                 cvVector.add(values);
-                //Log.d(LOG_TAG,"you tube trailers of: "+trailers[i]);
             }
             if(cvVector.size()>0){
                 ContentValues[] contentValues=new ContentValues[cvVector.size()];
@@ -426,7 +347,6 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
             String data=null;
             try {
                 URL url=new URL(builtUri.toString());
-                //Log.d(LOG_TAG, "URL: " + url.toString());
                 urlConnection=(HttpURLConnection)url.openConnection();
                 urlConnection.setRequestMethod("GET");
                 urlConnection.connect();
@@ -440,9 +360,6 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
 
                 String line;
                 while ((line = reader.readLine()) != null) {
-                    // Since it's JSON, adding a newline isn't necessary (it won't affect parsing)
-                    // But it does make debugging a *lot* easier if you print out the completed
-                    // buffer for debugging.
                     buffer.append(line + "\n");
                 }
 
@@ -451,7 +368,6 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
                     return null;
                 }
                 data = buffer.toString();
-                //Log.d(LOG_TAG,data);
             } catch (java.io.IOException e) {
                 e.printStackTrace();
             }

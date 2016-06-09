@@ -79,6 +79,7 @@ public class DetailActivityFragment extends Fragment implements LoaderManager.Lo
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         getLoaderManager().initLoader(LOADER_MOVIE_ID,null,this);
+//        getLoaderManager().initLoader()
         getLoaderManager().initLoader(LOADER_REVIEW_ID,null,this);
         getLoaderManager().initLoader(LOADER_TRAILER_ID,null,this);
 
