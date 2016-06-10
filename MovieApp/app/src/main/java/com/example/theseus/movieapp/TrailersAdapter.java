@@ -37,26 +37,26 @@ public class TrailersAdapter extends CursorAdapter  {
         super(context, c, flags);
         this.context=context;
     }
+    public static final class ViewHolder{
+        public static TextView trailersUrl=null;
 
+        public ViewHolder(View trailer) {
+            trailersUrl=(TextView)trailer.findViewById(R.id.trailerUrl);
+        }
+    }
     @Override
     public View newView(final Context context, Cursor cursor, ViewGroup parent) {
         View view= LayoutInflater.from(context).inflate(R.layout.trailer,parent,false);
-//        ListView listView=(ListView)view.getParent();
-//        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-//            @Override
-//            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-//                Toast.makeText(context,position,Toast.LENGTH_SHORT).show();
-//            }
-//        });
-//        trailersUrl=cursor.getString(COLUMN_TRAILER_URL);
+        ViewHolder viewHolder=new ViewHolder(view);
+        view.setTag(viewHolder);
         return view;
     }
 
     @Override
     public void bindView(View view, Context context, Cursor cursor) {
         currentCursor=cursor;
-        TextView trailersUrl=(TextView)view.findViewById(R.id.trailerUrl);
         String trailerLabel=Integer.toString(cursor.getPosition()+1);
+        TextView trailersUrl=(TextView)view.findViewById(R.id.trailerUrl);
         trailersUrl.setText(trailerLabel);
     }
 

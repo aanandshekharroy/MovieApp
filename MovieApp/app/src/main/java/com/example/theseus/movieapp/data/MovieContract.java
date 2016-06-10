@@ -9,6 +9,7 @@ import android.util.Log;
  * Created by theseus on 10/4/16.
  */
 public class MovieContract {
+
     public static final String LOG_TAG=MovieContract.class.getSimpleName();
     public static final String CONTENT_AUTHORITY="com.example.theseus.movieapp.app";
     public static final Uri BASE_CONTENT_URI=Uri.parse("content://"+CONTENT_AUTHORITY);

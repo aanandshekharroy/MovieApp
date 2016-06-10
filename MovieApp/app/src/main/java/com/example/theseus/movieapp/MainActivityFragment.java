@@ -234,6 +234,7 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
                     }
                 }
             }
+            //REVIEWER: PLEASE TELL ME HOW DO I USE CURSOR LOADER WITH THE ABOVE CURSORS
             uri= MovieContract.MoviesEntry.buildUriFromSortOrder(getSortBy());
             cursor=mContext.getContentResolver().query(uri,movieProjections,null,null,null,null);
             mImageAdapter.swapCursor(cursor);

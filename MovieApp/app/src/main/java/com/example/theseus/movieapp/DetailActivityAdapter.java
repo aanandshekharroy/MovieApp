@@ -64,6 +64,22 @@ public class DetailActivityAdapter extends CursorAdapter {
     static final int COLUMN_AUTHOR=2;
     static final int COLUMN_CONTENT=3;
     static final int COLUMN_TRAILER_URL=9;
+    public static class ViewHolder {
+        public static TextView movieTitle=null;
+        public static TextView synopsis;
+        public static TextView release_date;
+        public static ImageView poster;
+        public static TextView votes;
+        public static Button favouriteButton;
+        public ViewHolder(View view) {
+            movieTitle =(TextView)view.findViewById(R.id.title);
+            synopsis=(TextView)view.findViewById(R.id.synopsis);
+            release_date=(TextView)view.findViewById(R.id.release_date);
+            poster=(ImageView)view.findViewById(R.id.poster);
+            votes=(TextView)view.findViewById(R.id.votes);
+            favouriteButton=(Button)view.findViewById(R.id.favourite);
+        }
+    }
     View baseView=null;
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     public DetailActivityAdapter(Context context, Cursor c, int flags) {
@@ -73,6 +89,8 @@ public class DetailActivityAdapter extends CursorAdapter {
     @Override
     public View newView(Context context, Cursor cursor, ViewGroup parent) {
         View view = LayoutInflater.from(context).inflate(R.layout.movieview,parent,false);
+        ViewHolder viewHolder = new ViewHolder(view);
+        view.setTag(viewHolder);
         return view;
     }
 
@@ -80,30 +98,23 @@ public class DetailActivityAdapter extends CursorAdapter {
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     @Override
     public void bindView(View view, final Context context, final Cursor cursor) {
-        //
-        // cursor.
+        ViewHolder viewHolder = (ViewHolder) view.getTag();
         String tableName =cursor.getColumnName(COLUMN_MOVIE_ID);
         Log.d(LOG_TAG,"table name= "+tableName);
         if(tableName.contains(MovieContract.MoviesEntry.TABLE_NAME)){
-            Log.d(LOG_TAG,"\ncursor sixe: "+cursor.getCount()+",columns: "+cursor.getColumnCount());
-            TextView movieTitle=(TextView)view.findViewById(R.id.title);
-            movieTitle.setText(cursor.getString(COLUMN_TITLE));
-            TextView synopsis=(TextView)view.findViewById(R.id.synopsis);
-            synopsis.setText(cursor.getString(COLUMN_SYNOPSIS));
-            TextView release_date=(TextView)view.findViewById(R.id.release_date);
-            release_date.setText(cursor.getString(COLUMN_RELEASE_DATE));
-            ImageView poster=(ImageView)view.findViewById(R.id.poster);
+            viewHolder.movieTitle.setText(cursor.getString(COLUMN_TITLE));
+            viewHolder.synopsis.setText(cursor.getString(COLUMN_SYNOPSIS));
+            viewHolder.release_date.setText(cursor.getString(COLUMN_RELEASE_DATE));
             String url="http://image.tmdb.org/t/p/w185/"+cursor.getString(COLUMN_POSTER);
-            Picasso.with(context).load(url).into(poster);
-            TextView votes=(TextView)view.findViewById(R.id.votes);
-            votes.setText(cursor.getString(COLUMN_VOTES_AVG));
-            favouriteButton(context,view,cursor.getString(COLUMN_MOVIE_ID));
+            Picasso.with(context).load(url).into(viewHolder.poster);
+            viewHolder.votes.setText(cursor.getString(COLUMN_VOTES_AVG)+"/10");
+            favouriteButton(context,view,cursor.getString(COLUMN_MOVIE_ID),viewHolder.favouriteButton);
         }
     }
 
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
-    private void favouriteButton(final Context context, View view, final String movieId) {
-        final Button favouriteButton=(Button)view.findViewById(R.id.favourite);
+    private void favouriteButton(final Context context, View view, final String movieId, final Button favouriteButton) {
+
         final Uri favouriteUri= MovieContract.FavouritesEntry.buildUriFromMovieId(movieId);
         Cursor favourite=context.getContentResolver().query(favouriteUri
         ,movieProjections,null,null,null,null);
@@ -133,46 +144,4 @@ public class DetailActivityAdapter extends CursorAdapter {
             }
         });
     }
-//    favouriteButton
-//    private void setMarkAsFavourite(View rootView, final String movieId, String sortBy) {
-//        final Uri uriWithMovieId= MovieContract.FavouritesEntry.buildUriFromMovieId(movieId);
-//        boolean isFavourite=false;
-//        Cursor cursor=null;
-//        cursor = getContext().getContentResolver().query(uriWithMovieId,new String[]{MovieContract.FavouritesEntry.TABLE_NAME
-//                +"."+ MovieContract.FavouritesEntry.COLUMN_MOVIE_ID},null,null,null,null);
-//
-//        if(cursor.moveToFirst()){
-//            isFavourite=true;
-//        }
-//        if(cursor!=null){
-//            cursor.close();
-//        }
-//        final Button favourite=(Button)rootView.findViewById(R.id.favourite);
-//        if(isFavourite){
-//            favourite.setText(R.string.removeFromFavourites);
-//        }else {
-//            favourite.setText(R.string.markAsFavourite);
-//        }
-//        favourite.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//
-//                Cursor cursor=null;
-//                cursor = getContext().getContentResolver().query(uriWithMovieId,new String[]{MovieContract.FavouritesEntry.TABLE_NAME
-//                        +"."+ MovieContract.FavouritesEntry.COLUMN_MOVIE_ID},null,null,null,null);
-//                if(!cursor.moveToFirst()){
-//                    favourite.setText(getString(R.string.removeFromFavourites));
-//                    getContext().getContentResolver().insert(uriWithMovieId,null);
-//
-//                }else{
-//                    favourite.setText(getString(R.string.markAsFavourite));
-//                    getContext().getContentResolver().delete(uriWithMovieId, null, null);
-//                }
-//                if(cursor!=null){
-//                    cursor.close();
-//                }
-//                //seeAllFavouriteMovie();
-//            }
-//        });
-//    }*/
 }

@@ -33,19 +33,31 @@ public class ReviewsAdapter extends CursorAdapter{
     public ReviewsAdapter(Context context, Cursor c, int flags) {
         super(context, c, flags);
     }
+    public static final class ViewHolder{
+        public static TextView author=null;
+        private static TextView content=null;
 
+        public ViewHolder(View review) {
+            author=(TextView)review.findViewById(R.id.author);
+            content=(TextView)review.findViewById(R.id.content);
+        }
+    }
     @Override
     public View newView(Context context, Cursor cursor, ViewGroup parent) {
         View review=LayoutInflater.from(context).inflate(R.layout.reviews,parent,false);
+        ViewHolder viewHolder=new ViewHolder(review);
+        review.setTag(viewHolder);
         return review;
     }
 
     @Override
-    public void bindView(View view, Context context, Cursor cursor) {
-        TextView author=(TextView)view.findViewById(R.id.author);
-        author.setText(cursor.getString(COLUMN_AUTHOR));
-        TextView content=(TextView)view.findViewById(R.id.content);
-        content.setText(cursor.getString(COLUMN_CONTENT));
-        reviewsView=view;
+    public void bindView(View review, Context context, Cursor cursor) {
+        ViewHolder viewHolder=(ViewHolder)review.getTag();
+        viewHolder.author.setText(cursor.getString(COLUMN_AUTHOR));
+        viewHolder.content.setText(cursor.getString(COLUMN_CONTENT));
+//        TextView author=(TextView)review.findViewById(R.id.author);
+//        TextView content=(TextView)review.findViewById(R.id.content);
+//        author.setText(cursor.getString(COLUMN_AUTHOR));
+//        content.setText(cursor.getString(COLUMN_CONTENT));
     }
 }
