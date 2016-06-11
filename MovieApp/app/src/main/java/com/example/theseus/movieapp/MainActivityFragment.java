@@ -75,12 +75,21 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
     public ImageAdapter mImageAdapter;
     @Override
     public void onStart() {
-        updateMovieGrid();
+
         super.onStart();
     }
+    private String SORT_BY="popular";
     @Override
     public void onResume() {
-        super.onStart();
+
+        super.onResume();
+        String sortBy=getSortBy();
+        if(!sortBy.equals(SORT_BY)){
+            updateMovieGrid();
+            getLoaderManager().restartLoader(MOVIE_LOADER_ID,null,this);
+            SORT_BY=sortBy;
+        }
+
     }
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
 
@@ -90,7 +99,7 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
 
         return super.onOptionsItemSelected(item);
     }
-    private String getSortBy(){
+    public String getSortBy(){
         SharedPreferences prefs= PreferenceManager.getDefaultSharedPreferences(getContext());
         String sortBy=prefs.getString("sort_by_key","popular");
         return sortBy;
@@ -217,7 +226,7 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
             if(uri!=null){
                 if(uri.toString().contains(MovieContract.FavouritesEntry.TABLE_NAME)){
                     cursor=mContext.getContentResolver().query(MovieContract.FavouritesEntry.CONTENT_URI,movieProjections,null,null,null,null);
-                    mImageAdapter.swapCursor(cursor);
+//                    mImageAdapter.swapCursor(cursor);
                 }else{
                     try {
                         cursor = mContext.getContentResolver().query(uri,new String[]{MovieContract.MoviesEntry.COLUMN_MOVIE_ID},null,null,null,null);
@@ -237,7 +246,7 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
             //REVIEWER: PLEASE TELL ME HOW DO I USE CURSOR LOADER WITH THE ABOVE CURSORS
             uri= MovieContract.MoviesEntry.buildUriFromSortOrder(getSortBy());
             cursor=mContext.getContentResolver().query(uri,movieProjections,null,null,null,null);
-            mImageAdapter.swapCursor(cursor);
+//            mImageAdapter.swapCursor(cursor);
         }
         private Uri jsonParser(String movieData) throws JSONException {
             if(movieData==null){
