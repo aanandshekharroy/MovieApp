@@ -25,6 +25,7 @@ import android.widget.GridView;
 import android.widget.Toast;
 
 import com.example.theseus.movieapp.data.MovieContract;
+import com.example.theseus.movieapp.service.MovieService;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -78,18 +79,21 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
 
         super.onStart();
     }
-    private String SORT_BY="popular";
+    private String SORT_BY="";
     @Override
     public void onResume() {
 
-        super.onResume();
+
         String sortBy=getSortBy();
+//        Log.d(LOG_TAG,"sortBy: "+sortBy+", SORT_BY: "+SORT_BY);
         if(!sortBy.equals(SORT_BY)){
+//            Log.d(LOG_TAG,"s-1");
             updateMovieGrid();
+//            Log.d(LOG_TAG,"s-3");
             getLoaderManager().restartLoader(MOVIE_LOADER_ID,null,this);
             SORT_BY=sortBy;
         }
-
+        super.onResume();
     }
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
 
@@ -106,7 +110,13 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
     }
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     private void updateMovieGrid() {
-        new FetchMovieData().execute(getSortBy());
+        Intent intent=new Intent(getActivity(), MovieService.class);
+
+        intent.putExtra(SORT_BY,getSortBy());
+        getActivity().startService(intent);
+//        FetchMovieData fetchMovieData=new FetchMovieData();
+//        fetchMovieData.execute(getSortBy());
+//        fetchMovieData.getStatus();
 
     }
     static final String EXTRA_MOVIE_TITLE="com.example.theseus.movieapp";
@@ -157,243 +167,6 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
         mImageAdapter.swapCursor(null);
 
     }
-    class FetchMovieData extends AsyncTask<String,Void,Uri> {
-        public final String LOG_TAG=FetchMovieData.class.getSimpleName();
-        public final Context mContext=getContext();
-        @Override
-        protected Uri doInBackground(String... params) {
-            String baseUrl = null;
-            final String APP_KEY="api_key";
-           // params[0]="popular";
-            if(params[0].contains(MovieContract.FavouritesEntry.TABLE_NAME)){
-                return MovieContract.FavouritesEntry.CONTENT_URI;
-            }
-            baseUrl="http://api.themoviedb.org/3/movie/"+params[0]+"?";
 
-            Uri builtUri=Uri.parse(baseUrl).buildUpon()
-                    .appendQueryParameter(APP_KEY,BuildConfig.MOVIE_API_KEY).build();
-            HttpURLConnection urlConnection = null;
-            BufferedReader reader=null;
-            String movieData = null;
-            try {
-                URL url=new URL(builtUri.toString());
-                urlConnection=(HttpURLConnection)url.openConnection();
-                urlConnection.setRequestMethod("GET");
-                urlConnection.connect();
-                InputStream inputStream=urlConnection.getInputStream();
-                StringBuffer buffer = new StringBuffer();
-                if (inputStream == null) {
-                    return null;
-                }
-                reader = new BufferedReader(new InputStreamReader(inputStream));
 
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    buffer.append(line + "\n");
-                }
-
-                if (buffer.length() == 0) {
-                    // Stream was empty.  No point in parsing.
-                    return null;
-                }
-                movieData = buffer.toString();
-            } catch (java.io.IOException e) {
-                e.printStackTrace();
-            }
-            finally {
-                if(urlConnection!=null){
-                    urlConnection.disconnect();
-                }
-                if(reader!=null){
-                    try {
-                        reader.close();
-                    }catch (final IOException e){
-                        Log.e(LOG_TAG,"Error closing stream");
-                    }
-                }
-            }
-            try {
-                return jsonParser(movieData);
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-            return null;
-        }
-        @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
-        @Override
-        protected void onPostExecute(Uri uri){
-            Cursor cursor=null;
-            if(uri!=null){
-                if(uri.toString().contains(MovieContract.FavouritesEntry.TABLE_NAME)){
-                    cursor=mContext.getContentResolver().query(MovieContract.FavouritesEntry.CONTENT_URI,movieProjections,null,null,null,null);
-//                    mImageAdapter.swapCursor(cursor);
-                }else{
-                    try {
-                        cursor = mContext.getContentResolver().query(uri,new String[]{MovieContract.MoviesEntry.COLUMN_MOVIE_ID},null,null,null,null);
-                        if(cursor.moveToFirst()){
-                            do{
-                                new FetchTrailersAndReviews().execute(cursor.getString(0));
-                            }while (cursor.moveToNext());
-
-                        }
-                    }finally {
-                        if (cursor != null) {
-                            cursor.close();
-                        }
-                    }
-                }
-            }
-            //REVIEWER: PLEASE TELL ME HOW DO I USE CURSOR LOADER WITH THE ABOVE CURSORS
-            uri= MovieContract.MoviesEntry.buildUriFromSortOrder(getSortBy());
-            cursor=mContext.getContentResolver().query(uri,movieProjections,null,null,null,null);
-//            mImageAdapter.swapCursor(cursor);
-        }
-        private Uri jsonParser(String movieData) throws JSONException {
-            if(movieData==null){
-                return null;
-            }
-            JSONObject movies=new JSONObject(movieData);
-            JSONArray movieArray=movies.getJSONArray("results");
-            Vector<ContentValues> cvVector=new Vector<>(movieArray.length());
-            for(int i=0;i<movieArray.length();i++){
-                JSONObject movie=movieArray.getJSONObject(i);
-                ContentValues values=new ContentValues();
-                String calue="id="+movie.getString("id")+"\n"+
-                        "title:"+movie.getString("title")+"\n"+
-                        "overview: "+movie.getString("overview")+"\n"
-                        +"votes: "+movie.getString("vote_average")+"\n"+"releasing: "+movie.getString("release_date")+"\n"+
-                        "poster: "+movie.getString("poster_path")+"\n";
-
-                values.put(MovieContract.MoviesEntry.COLUMN_MOVIE_ID,movie.getString("id"));
-                values.put(MovieContract.MoviesEntry.COLUMN_TITLE,movie.getString("title"));
-                values.put(MovieContract.MoviesEntry.COLUMN_SYNOPSIS,movie.getString("overview"));
-                values.put(MovieContract.MoviesEntry.COLUMN_VOTES_AVG,movie.getString("vote_average"));
-                values.put(MovieContract.MoviesEntry.COLUMN_RELEASE_DATE, movie.getString("release_date"));
-                values.put(MovieContract.MoviesEntry.COLUMN_POSTER,movie.getString("poster_path"));
-                values.put(MovieContract.MoviesEntry.COLUMN_SORT_BY,getSortBy());
-                cvVector.add(values);
-            }
-            if(cvVector.size()>0){
-                ContentValues[] contentValuesArray=new ContentValues[cvVector.size()];
-                cvVector.toArray(contentValuesArray);
-                mContext.getContentResolver().bulkInsert(MovieContract.MoviesEntry.CONTENT_URI_GENRE,contentValuesArray);
-            }
-            return MovieContract.MoviesEntry.buildUriFromSortOrder(getSortBy());
-        }
-    }
-    class FetchTrailersAndReviews extends AsyncTask<String,Void,String[]>{
-        private  final String LOG_TAG=FetchTrailersAndReviews.class.getSimpleName();
-        public final Context mContext=getContext();
-        String movieId;
-        @Override
-        protected String[] doInBackground(String... params) {
-            String baseUrlTrailer = null;
-            String baseUrlReviews = null;
-            final String APP_KEY="api_key";
-            movieId=params[0];
-            baseUrlTrailer="http://api.themoviedb.org/3/movie/";
-            baseUrlReviews="http://api.themoviedb.org/3/movie/";
-            Uri builtUriTrailer=Uri.parse(baseUrlTrailer).buildUpon()
-                    .appendPath(movieId)
-                    .appendPath("videos")
-                    .appendQueryParameter(APP_KEY,BuildConfig.MOVIE_API_KEY).build();
-            Uri builtUriReviews=Uri.parse(baseUrlTrailer).buildUpon()
-                    .appendPath(movieId)
-                    .appendPath("reviews")
-                    .appendQueryParameter(APP_KEY, BuildConfig.MOVIE_API_KEY).build();
-
-            String trailersData=getJson(builtUriTrailer);
-            String reviewsData=getJson(builtUriReviews);
-            try {
-                trailers(trailersData);
-                reviews(reviewsData);
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-            return null;
-        }
-
-        private  void reviews(String reviewsData) throws JSONException {
-            JSONObject jsonObject=new JSONObject(reviewsData);
-            JSONArray reviewsArray=jsonObject.getJSONArray("results");
-            Vector<ContentValues> cvVarray=new Vector<>(reviewsArray.length());
-            for(int i=0;i<reviewsArray.length();i++){
-                JSONObject Review=reviewsArray.getJSONObject(i);
-                ContentValues values=new ContentValues();
-                values.put(MovieContract.ReviewsEntry.COLUMN_MOVIE_ID,movieId);
-                values.put(MovieContract.ReviewsEntry.COLUMN_AUTHOR,Review.getString("author"));
-                values.put(MovieContract.ReviewsEntry.COLUMN_CONTENT,Review.getString("content"));
-                cvVarray.add(values);
-            }
-            if(cvVarray.size()>0){
-                ContentValues[] contentValues=new ContentValues[cvVarray.size()];
-                cvVarray.toArray(contentValues);
-                mContext.getContentResolver().bulkInsert(MovieContract.ReviewsEntry.CONTENT_URI,contentValues);
-            }
-        }
-
-        private  void trailers(String trailer) throws JSONException {
-
-            JSONObject trailerObject=new JSONObject(trailer);
-            JSONArray trailersArray=trailerObject.getJSONArray("results");
-            String baseUrl="https://www.youtube.com/watch?v=";
-            Vector<ContentValues> cvVector=new Vector<>(trailersArray.length());
-            for (int i=0;i<trailersArray.length();i++){
-                JSONObject Trailer=trailersArray.getJSONObject(i);
-                ContentValues values=new ContentValues();
-                values.put(MovieContract.TrailersEntry.COLUMN_MOVIE_ID, movieId);
-                values.put(MovieContract.TrailersEntry.COLUMN_TRAILER_URL, baseUrl + Trailer.getString("key"));
-                cvVector.add(values);
-            }
-            if(cvVector.size()>0){
-                ContentValues[] contentValues=new ContentValues[cvVector.size()];
-                cvVector.toArray(contentValues);
-                mContext.getContentResolver().bulkInsert(MovieContract.TrailersEntry.CONTENT_URI,contentValues);
-            }
-        }
-        private String getJson(Uri builtUri) {
-            HttpURLConnection urlConnection = null;
-            BufferedReader reader=null;
-            String data=null;
-            try {
-                URL url=new URL(builtUri.toString());
-                urlConnection=(HttpURLConnection)url.openConnection();
-                urlConnection.setRequestMethod("GET");
-                urlConnection.connect();
-                InputStream inputStream=urlConnection.getInputStream();
-                StringBuffer buffer = new StringBuffer();
-                if (inputStream == null) {
-                    // Nothing to do.
-                    return null;
-                }
-                reader = new BufferedReader(new InputStreamReader(inputStream));
-
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    buffer.append(line + "\n");
-                }
-
-                if (buffer.length() == 0 ){
-                    // Stream was empty.  No point in parsing.
-                    return null;
-                }
-                data = buffer.toString();
-            } catch (java.io.IOException e) {
-                e.printStackTrace();
-            }
-            finally {
-                if(urlConnection!=null){
-                    urlConnection.disconnect();
-                }
-                if(reader!=null){
-                    try {
-                        reader.close();
-                    }catch (final IOException e){
-                        Log.e(LOG_TAG,"Error closing stream");
-                    }
-                }
-            }
-            return data;
-        }
-    }
 }

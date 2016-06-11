@@ -40,6 +40,7 @@
         <provider
             android:authorities="com.example.theseus.movieapp.app"
             android:name=".data.MovieProvider"/>
+        <service android:name=".service.MovieService"></service>
     </application>
 
 </manifest>
