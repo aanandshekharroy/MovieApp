@@ -8,6 +8,15 @@ import android.database.sqlite.SQLiteOpenHelper;
  * Created by theseus on 10/4/16.
  */
 public class MovieDBHelper extends SQLiteOpenHelper {
+    @Override
+    public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        db.execSQL("DROP TABLE IF EXISTS "+MovieContract.MoviesEntry.TABLE_NAME);
+        db.execSQL("DROP TABLE IF EXISTS "+MovieContract.ReviewsEntry.TABLE_NAME);
+        db.execSQL("DROP TABLE IF EXISTS "+MovieContract.TrailersEntry.TABLE_NAME);
+        db.execSQL("DROP TABLE IF EXISTS "+ MovieContract.FavouritesEntry.TABLE_NAME);
+        onCreate(db);
+    }
+
     public static int DATABASE_VERSION=18;
     public static String DATABASE_NAME="movie.db";
     public MovieDBHelper(Context context) {
