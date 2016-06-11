@@ -27,11 +27,16 @@ android {
         maven {
             url "https://s3.amazonaws.com/repo.commonsware.com"
         }
+//        maven { url "https://jitpack.io" }
     }
 
     dependencies {
         compile 'com.commonsware.cwac:merge:1.1.+'
     }
+
+//    dependencies {
+//        compile 'com.github.theseus007:My-app-Portfolio'
+//    }
 
 }
 

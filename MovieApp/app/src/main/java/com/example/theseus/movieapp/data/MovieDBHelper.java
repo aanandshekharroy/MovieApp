@@ -8,7 +8,7 @@ import android.database.sqlite.SQLiteOpenHelper;
  * Created by theseus on 10/4/16.
  */
 public class MovieDBHelper extends SQLiteOpenHelper {
-    public static int DATABASE_VERSION=17;
+    public static int DATABASE_VERSION=18;
     public static String DATABASE_NAME="movie.db";
     public MovieDBHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
