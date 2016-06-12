@@ -47,7 +47,6 @@
             android:exported="false"
             android:syncable="true" />
 
-        <service android:name=".service.MovieService"></service>
         <service
             android:name=".sync.MovieAuthenticatorService"
             >

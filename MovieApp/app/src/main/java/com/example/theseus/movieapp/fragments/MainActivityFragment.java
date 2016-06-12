@@ -97,6 +97,7 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
     }
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     private void updateMovieGrid() {
+        Log.d(LOG_TAG,"update called");
         MovieSyncAdapter.syncImmediately(getActivity());
 //        Intent intent=new Intent(getActivity(), MovieService.class);
 //
