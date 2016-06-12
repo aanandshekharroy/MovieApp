@@ -57,12 +57,12 @@ public class DetailActivityAdapter extends CursorAdapter {
     static final int COLUMN_CONTENT=3;
     static final int COLUMN_TRAILER_URL=9;
     public static class ViewHolder {
-        public static TextView movieTitle=null;
-        public static TextView synopsis;
-        public static TextView release_date;
-        public static ImageView poster;
-        public static TextView votes;
-        public static Button favouriteButton;
+        public  TextView movieTitle=null;
+        public  TextView synopsis;
+        public  TextView release_date;
+        public  ImageView poster;
+        public  TextView votes;
+        public  Button favouriteButton;
         public ViewHolder(View view) {
             movieTitle =(TextView)view.findViewById(R.id.title);
             synopsis=(TextView)view.findViewById(R.id.synopsis);

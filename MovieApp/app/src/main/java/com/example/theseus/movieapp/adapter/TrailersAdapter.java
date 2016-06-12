@@ -39,7 +39,7 @@ public class TrailersAdapter extends CursorAdapter  {
         this.context=context;
     }
     public static final class ViewHolder{
-        public static TextView trailersUrl=null;
+        public  TextView trailersUrl=null;
 
         public ViewHolder(View trailer) {
             trailersUrl=(TextView)trailer.findViewById(R.id.trailerUrl);

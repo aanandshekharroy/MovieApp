@@ -35,8 +35,8 @@ public class ReviewsAdapter extends CursorAdapter{
         super(context, c, flags);
     }
     public static final class ReviewHolder{
-        public static TextView author=null;
-        private static TextView content=null;
+        public  TextView author=null;
+        private  TextView content=null;
 
         public ReviewHolder(View review) {
             author=(TextView)review.findViewById(R.id.author);
@@ -56,9 +56,5 @@ public class ReviewsAdapter extends CursorAdapter{
         ReviewHolder viewHolder=(ReviewHolder)review.getTag();
         viewHolder.author.setText(cursor.getString(COLUMN_AUTHOR));
         viewHolder.content.setText(cursor.getString(COLUMN_CONTENT));
-//        TextView author=(TextView)review.findViewById(R.id.author);
-//        TextView content=(TextView)review.findViewById(R.id.content);
-//        author.setText(cursor.getString(COLUMN_AUTHOR));
-//        content.setText(cursor.getString(COLUMN_CONTENT));
     }
 }

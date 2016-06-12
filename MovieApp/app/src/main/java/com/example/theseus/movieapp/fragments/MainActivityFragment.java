@@ -57,31 +57,13 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
         super.onActivityCreated(savedInstanceState);
     }
     public void initializeLoader(){
+        Log.d(LOG_TAG,"reinitialized");
         getLoaderManager().initLoader(MOVIE_LOADER_ID, null, this);
 
     }
     public ImageAdapter mImageAdapter;
-    @Override
-    public void onStart() {
-
-        super.onStart();
-    }
     private String SORT_BY="";
-    @Override
-    public void onResume() {
 
-
-        String sortBy=getSortBy();
-//        Log.d(LOG_TAG,"sortBy: "+sortBy+", SORT_BY: "+SORT_BY);
-        if(!sortBy.equals(SORT_BY)){
-//            Log.d(LOG_TAG,"s-1");
-            updateMovieGrid();
-//            Log.d(LOG_TAG,"s-3");
-            getLoaderManager().restartLoader(MOVIE_LOADER_ID,null,this);
-            SORT_BY=sortBy;
-        }
-        super.onResume();
-    }
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
 
     @Override
@@ -145,7 +127,7 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        Log.d(LOG_TAG,"step: 7");
+        Log.d(LOG_TAG,"-------------------"+data.getColumnName(COLUMN_MOVIE_ID));
         mImageAdapter.swapCursor(data);
 
     }
