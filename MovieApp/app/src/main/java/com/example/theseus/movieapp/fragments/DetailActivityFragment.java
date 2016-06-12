@@ -134,6 +134,10 @@ public class DetailActivityFragment extends Fragment implements LoaderManager.Lo
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        Intent intent=getActivity().getIntent();
+        if(intent==null||intent.getData()==null){
+            return null;
+        }
         switch (id){
             case LOADER_MOVIE_ID:
                 Log.d(LOG_TAG,"3");

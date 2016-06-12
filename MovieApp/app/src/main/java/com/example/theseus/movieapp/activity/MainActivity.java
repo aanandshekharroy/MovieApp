@@ -20,12 +20,12 @@ import com.example.theseus.movieapp.fragments.MainActivityFragment;
 public class MainActivity extends AppCompatActivity {
     public static String LOG_TAG=MainActivity.class.getSimpleName();
     private static final String DETAILFRAGMENT_TAG = "DFTAG";
-    private static  boolean mTwoPane=false;
+    private   boolean mTwoPane=false;
     private static String mSortBy;
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        this.getWindow().requestFeature(Window.FEATURE_ACTION_BAR);
+//        this.getWindow().requestFeature(Window.FEATURE_ACTION_BAR);
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
@@ -33,10 +33,11 @@ public class MainActivity extends AppCompatActivity {
             mTwoPane=true;
             if(savedInstanceState==null){
                 getSupportFragmentManager().beginTransaction()
-                        .add(R.id.fragment_detail,new DetailActivityFragment())
+                        .replace(R.id.fragment_detail,new DetailActivityFragment(),DETAILFRAGMENT_TAG)
                         .commit();
             }
-
+        }else {
+            mTwoPane=false;
         }
 //
     }
