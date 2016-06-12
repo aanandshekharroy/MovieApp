@@ -1,13 +1,10 @@
-package com.example.theseus.movieapp;
+package com.example.theseus.movieapp.fragments;
 
 import android.annotation.TargetApi;
-import android.content.ContentValues;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -22,22 +19,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
-import android.widget.Toast;
 
+import com.example.theseus.movieapp.adapter.ImageAdapter;
+import com.example.theseus.movieapp.R;
+import com.example.theseus.movieapp.activity.DetailActivity;
 import com.example.theseus.movieapp.data.MovieContract;
-import com.example.theseus.movieapp.service.MovieService;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.util.Vector;
+import com.example.theseus.movieapp.sync.MovieSyncAdapter;
 
 /**
  * A placeholder fragment containing a simple view.
@@ -110,10 +97,11 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
     }
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     private void updateMovieGrid() {
-        Intent intent=new Intent(getActivity(), MovieService.class);
-
-        intent.putExtra(SORT_BY,getSortBy());
-        getActivity().startService(intent);
+        MovieSyncAdapter.syncImmediately(getActivity());
+//        Intent intent=new Intent(getActivity(), MovieService.class);
+//
+//        intent.putExtra(SORT_BY,getSortBy());
+//        getActivity().startService(intent);
 //        FetchMovieData fetchMovieData=new FetchMovieData();
 //        fetchMovieData.execute(getSortBy());
 //        fetchMovieData.getStatus();

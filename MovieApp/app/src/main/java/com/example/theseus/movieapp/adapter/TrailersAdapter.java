@@ -1,4 +1,4 @@
-package com.example.theseus.movieapp;
+package com.example.theseus.movieapp.adapter;
 
 import android.annotation.TargetApi;
 import android.content.Context;
@@ -16,6 +16,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.theseus.movieapp.R;
 import com.example.theseus.movieapp.data.MovieContract;
 
 /**

@@ -1,14 +1,15 @@
-package com.example.theseus.movieapp;
+package com.example.theseus.movieapp.activity;
 
 import android.annotation.TargetApi;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.Window;
+
+import com.example.theseus.movieapp.R;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -19,12 +20,12 @@ public class MainActivity extends AppCompatActivity {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
-        setSupportActionBar(myToolbar);
-        //ActionBar actionBar=getActionBar();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-//            actionBar.setHomeButtonEnabled(false);
-        }
+//        Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
+//        setSupportActionBar(myToolbar);
+//        //ActionBar actionBar=getActionBar();
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+////            actionBar.setHomeButtonEnabled(false);
+//        }
 
     }
 

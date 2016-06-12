@@ -136,6 +136,8 @@ public class MovieProvider extends ContentProvider {
                 break;
         }
         Log.d(LOG_TAG,"\ncursor sixe: "+retCursor.getCount()+",columns: "+retCursor.toString());
+        retCursor.setNotificationUri(getContext().getContentResolver(), uri);
+
         return retCursor;
     }
 

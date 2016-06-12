@@ -1,4 +1,4 @@
-package com.example.theseus.movieapp;
+package com.example.theseus.movieapp.activity;
 
 import android.content.res.Configuration;
 import android.os.Bundle;

@@ -1,4 +1,4 @@
-package com.example.theseus.movieapp;
+package com.example.theseus.movieapp.adapter;
 
 import android.annotation.TargetApi;
 import android.content.ContentValues;
@@ -6,8 +6,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
-import android.provider.BaseColumns;
-import android.support.v4.content.Loader;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,17 +13,11 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CursorAdapter;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
+import com.example.theseus.movieapp.R;
 import com.example.theseus.movieapp.data.MovieContract;
 import com.squareup.picasso.Picasso;
-
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
 
 /**
  * Created by theseus on 17/4/16.

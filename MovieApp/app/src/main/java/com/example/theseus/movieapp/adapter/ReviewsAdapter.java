@@ -1,4 +1,4 @@
-package com.example.theseus.movieapp;
+package com.example.theseus.movieapp.adapter;
 
 import android.annotation.TargetApi;
 import android.content.Context;
@@ -11,6 +11,7 @@ import android.widget.ArrayAdapter;
 import android.widget.CursorAdapter;
 import android.widget.TextView;
 
+import com.example.theseus.movieapp.R;
 import com.example.theseus.movieapp.data.MovieContract;
 
 import java.util.List;
@@ -33,11 +34,11 @@ public class ReviewsAdapter extends CursorAdapter{
     public ReviewsAdapter(Context context, Cursor c, int flags) {
         super(context, c, flags);
     }
-    public static final class ViewHolder{
+    public static final class ReviewHolder{
         public static TextView author=null;
         private static TextView content=null;
 
-        public ViewHolder(View review) {
+        public ReviewHolder(View review) {
             author=(TextView)review.findViewById(R.id.author);
             content=(TextView)review.findViewById(R.id.content);
         }
@@ -45,14 +46,14 @@ public class ReviewsAdapter extends CursorAdapter{
     @Override
     public View newView(Context context, Cursor cursor, ViewGroup parent) {
         View review=LayoutInflater.from(context).inflate(R.layout.reviews,parent,false);
-        ViewHolder viewHolder=new ViewHolder(review);
+        ReviewHolder viewHolder=new ReviewHolder(review);
         review.setTag(viewHolder);
         return review;
     }
 
     @Override
     public void bindView(View review, Context context, Cursor cursor) {
-        ViewHolder viewHolder=(ViewHolder)review.getTag();
+        ReviewHolder viewHolder=(ReviewHolder)review.getTag();
         viewHolder.author.setText(cursor.getString(COLUMN_AUTHOR));
         viewHolder.content.setText(cursor.getString(COLUMN_CONTENT));
 //        TextView author=(TextView)review.findViewById(R.id.author);

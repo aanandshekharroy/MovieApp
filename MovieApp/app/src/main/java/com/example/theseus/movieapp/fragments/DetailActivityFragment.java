@@ -1,4 +1,4 @@
-package com.example.theseus.movieapp;
+package com.example.theseus.movieapp.fragments;
 
 import android.annotation.TargetApi;
 import android.content.Intent;
@@ -8,7 +8,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.provider.BaseColumns;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
@@ -19,11 +18,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import com.commonsware.cwac.merge.MergeAdapter;
+import com.example.theseus.movieapp.adapter.DetailActivityAdapter;
+import com.example.theseus.movieapp.R;
+import com.example.theseus.movieapp.adapter.ReviewsAdapter;
+import com.example.theseus.movieapp.adapter.TrailersAdapter;
 import com.example.theseus.movieapp.data.MovieContract;
 
 /**
