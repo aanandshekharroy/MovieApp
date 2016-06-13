@@ -3,6 +3,7 @@ package com.example.theseus.movieapp.activity;
 import android.annotation.TargetApi;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -18,10 +19,11 @@ import com.example.theseus.movieapp.R;
 import com.example.theseus.movieapp.fragments.DetailActivityFragment;
 import com.example.theseus.movieapp.fragments.MainActivityFragment;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements MainActivityFragment.Callback {
     public static String LOG_TAG=MainActivity.class.getSimpleName();
     private static final String DETAILFRAGMENT_TAG = "DFTAG";
-    private   boolean mTwoPane=false;
+
+    private boolean mTwoPane=false;
     private static String mSortBy;
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     @Override
@@ -57,7 +59,27 @@ public class MainActivity extends AppCompatActivity {
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
+    @Override
+    public void onItemSelected(Uri contentUri) {
+        if (mTwoPane) {
+            // In two-pane mode, show the detail view in this activity by
+            // adding or replacing the detail fragment using a
+            // fragment transaction.
+            Bundle args = new Bundle();
+            args.putParcelable(DetailActivityFragment.DETAIL_URI, contentUri);
 
+            DetailActivityFragment fragment = new DetailActivityFragment();
+            fragment.setArguments(args);
+
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.fragment_detail, fragment, DETAILFRAGMENT_TAG)
+                    .commit();
+        } else {
+            Intent intent = new Intent(this, DetailActivity.class)
+                    .setData(contentUri);
+            startActivity(intent);
+        }
+    }
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
@@ -81,15 +103,20 @@ public class MainActivity extends AppCompatActivity {
         String sortBy=getSortBy();
 //        Log.d(LOG_TAG,"sortByfunc: "+sortBy+", mSortBy= "+mSortBy);
         Log.d(LOG_TAG,"fas----0");
-//        if(mSortBy==null||!mSortBy.equals(sortBy)){
+        if(mSortBy==null||!mSortBy.equals(sortBy)){
             MainActivityFragment ff=(MainActivityFragment)getSupportFragmentManager()
                     .findFragmentById(R.id.fragment_main);
             if(ff!=null){
                 Log.d(LOG_TAG,"ff not null: ");
                 ff.onSortOrderChange();
             }
+            DetailActivityFragment detailActivityFragment=(DetailActivityFragment)getSupportFragmentManager()
+                    .findFragmentByTag(DETAILFRAGMENT_TAG);
+            if(detailActivityFragment!=null){
+                detailActivityFragment.onSortOrderChange();
+            }
             mSortBy=sortBy;
-//        }
+        }
         Log.d(LOG_TAG,"fas----1");
         super.onResume();
     }

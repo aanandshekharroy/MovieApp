@@ -38,6 +38,7 @@ public class DetailActivityFragment extends Fragment implements LoaderManager.Lo
     ListView listView;
     ReviewsAdapter reviewsAdapter;
     TrailersAdapter trailersAdapter;
+    public static final String DETAIL_URI = "URI";
     Uri movieUri;
     String movieId;
     MergeAdapter mergeAdapter=new MergeAdapter();
@@ -96,62 +97,33 @@ public class DetailActivityFragment extends Fragment implements LoaderManager.Lo
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        Bundle arguments = getArguments();
+        if (arguments != null) {
+            movieUri = arguments.getParcelable(DetailActivityFragment.DETAIL_URI);
+            movieId= MovieContract.MoviesEntry.getMovieIdFromUri(movieUri);
+        }
         View rootView=inflater.inflate(R.layout.fragment_detail, container, false);
         detailActivityAdapter=new DetailActivityAdapter(getContext(),null,0);
         reviewsAdapter=new ReviewsAdapter(getContext(),null,0);
         trailersAdapter=new TrailersAdapter(getContext(),null,0);
-        Intent intent=getActivity().getIntent();
-        if(intent!=null){
-//            Toast.makeText(getContext(),intent.getDataString(),Toast.LENGTH_SHORT).show();
-            movieUri=intent.getData();
-            if(movieUri!=null){
-                movieId= MovieContract.MoviesEntry.getMovieIdFromUri(movieUri);
-            }
-
-            //View view=inflater.inflate(R.layout.movieview,container,false);
-            Log.d(LOG_TAG,"2");
-            listView=(ListView) rootView.findViewById(R.id.detailedView);
-            mergeAdapter.addAdapter(detailActivityAdapter);
-            mergeAdapter.addAdapter(reviewsAdapter);
-            mergeAdapter.addAdapter(trailersAdapter);
-            //linearLayout.addView();
-            listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                @Override
-                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
-                    Cursor cursor=(Cursor)parent.getItemAtPosition(position);
-                    String tableName=cursor.getColumnName(COLUMN_MOVIE_ID);
-                    if(tableName.contains(MovieContract.TrailersEntry.TABLE_NAME)){
-                        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(cursor.getString(COLUMN_TRAILER_URL))));
-
-                    }
-//                    Toast.makeText(getContext(),Integer.toString(cursor.getColumnCount()),Toast.LENGTH_SHORT).show();
-                }
-            });
-            listView.setAdapter(mergeAdapter);
-            //linearLayout.setAdapter(detailActivityAdapter);
-
-        }
-        return rootView;
+        listView=(ListView) rootView.findViewById(R.id.detailedView);return rootView;
     }
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        Intent intent=getActivity().getIntent();
-        if(intent==null||intent.getData()==null){
-            return null;
-        }
-        switch (id){
-            case LOADER_MOVIE_ID:
-                Log.d(LOG_TAG,"3");
-                return new CursorLoader(getActivity(),movieUri,movieProjections,null,null,null);
-            case LOADER_REVIEW_ID:
-                Log.d(LOG_TAG,"4");
-                Uri reviewUri= MovieContract.ReviewsEntry.buildUriFromID(movieId);
-                return new CursorLoader(getContext(),reviewUri,reviewsProjection,null,null,null);
-            case LOADER_TRAILER_ID:
-                Uri trailerUri= MovieContract.TrailersEntry.buildUriFromMovieId(movieId);
-                return new CursorLoader(getContext(),trailerUri,trailersProjection,null,null,null);
+        if(null!=movieUri){
+            switch (id){
+                case LOADER_MOVIE_ID:
+                    Log.d(LOG_TAG,"3");
+                    return new CursorLoader(getActivity(),movieUri,movieProjections,null,null,null);
+                case LOADER_REVIEW_ID:
+                    Log.d(LOG_TAG,"4");
+                    Uri reviewUri= MovieContract.ReviewsEntry.buildUriFromID(movieId);
+                    return new CursorLoader(getContext(),reviewUri,reviewsProjection,null,null,null);
+                case LOADER_TRAILER_ID:
+                    Uri trailerUri= MovieContract.TrailersEntry.buildUriFromMovieId(movieId);
+                    return new CursorLoader(getContext(),trailerUri,trailersProjection,null,null,null);
+            }
         }
         return null;
 
@@ -171,6 +143,24 @@ public class DetailActivityFragment extends Fragment implements LoaderManager.Lo
                 break;
             case LOADER_TRAILER_ID:
                 trailersAdapter.swapCursor(data);
+                mergeAdapter.addAdapter(detailActivityAdapter);
+                mergeAdapter.addAdapter(reviewsAdapter);
+                mergeAdapter.addAdapter(trailersAdapter);
+                //linearLayout.addView();
+                listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+                        Cursor cursor=(Cursor)parent.getItemAtPosition(position);
+                        String tableName=cursor.getColumnName(COLUMN_MOVIE_ID);
+                        if(tableName.contains(MovieContract.TrailersEntry.TABLE_NAME)){
+                            startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(cursor.getString(COLUMN_TRAILER_URL))));
+
+                        }
+//                    Toast.makeText(getContext(),Integer.toString(cursor.getColumnCount()),Toast.LENGTH_SHORT).show();
+                    }
+                });
+                listView.setAdapter(mergeAdapter);
                 break;
 
 
@@ -189,50 +179,16 @@ public class DetailActivityFragment extends Fragment implements LoaderManager.Lo
             case LOADER_REVIEW_ID:
                 Log.d(LOG_TAG,"8");
                 reviewsAdapter.swapCursor(null);
+
         }
     }
-    /*@TargetApi(Build.VERSION_CODES.JELLY_BEAN)
-    private void setMarkAsFavourite(View rootView, final String movieId, String sortBy) {
-        final Uri uriWithMovieId= MovieContract.FavouritesEntry.buildUriFromMovieId(movieId);
-        boolean isFavourite=false;
-        Cursor cursor=null;
-        cursor = getContext().getContentResolver().query(uriWithMovieId,new String[]{MovieContract.FavouritesEntry.TABLE_NAME
-                +"."+ MovieContract.FavouritesEntry.COLUMN_MOVIE_ID},null,null,null,null);
 
-        if(cursor.moveToFirst()){
-            isFavourite=true;
-        }
-        if(cursor!=null){
-            cursor.close();
-        }
-        final Button favourite=(Button)rootView.findViewById(R.id.favourite);
-        if(isFavourite){
-            favourite.setText(R.string.removeFromFavourites);
-        }else {
-            favourite.setText(R.string.markAsFavourite);
-        }
-        favourite.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                Cursor cursor=null;
-                cursor = getContext().getContentResolver().query(uriWithMovieId,new String[]{MovieContract.FavouritesEntry.TABLE_NAME
-                        +"."+ MovieContract.FavouritesEntry.COLUMN_MOVIE_ID},null,null,null,null);
-                if(!cursor.moveToFirst()){
-                    favourite.setText(getString(R.string.removeFromFavourites));
-                    getContext().getContentResolver().insert(uriWithMovieId,null);
-
-                }else{
-                    favourite.setText(getString(R.string.markAsFavourite));
-                    getContext().getContentResolver().delete(uriWithMovieId, null, null);
-                }
-                if(cursor!=null){
-                    cursor.close();
-                }
-                //seeAllFavouriteMovie();
-            }
-        });
-    }*/
-
-
+    public void onSortOrderChange() {
+//        Uri uri=movieUri;
+//        if(uri!=null){
+//            getLoaderManager().restartLoader(LOADER_MOVIE_ID,null,this);
+//            getLoaderManager().restartLoader(LOADER_REVIEW_ID,null,this);
+//            getLoaderManager().restartLoader(LOADER_TRAILER_ID,null,this);
+//        }
+    }
 }

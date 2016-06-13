@@ -105,14 +105,28 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Cursor cursor=(Cursor) parent.getItemAtPosition(position);
-                Uri movieIdUri=MovieContract.MoviesEntry.buildUriFromSortOrderAndMovieId(getSortBy(),cursor.getString(COLUMN_MOVIE_ID));
-                Intent detailActivity=new Intent(getContext(),DetailActivity.class).setData(movieIdUri);
-                startActivity(detailActivity);
+                if(cursor!=null){
+                    Uri movieIdUri=MovieContract.MoviesEntry.buildUriFromSortOrderAndMovieId(getSortBy(),cursor.getString(COLUMN_MOVIE_ID));
+                    ((Callback) getActivity())
+                            .onItemSelected(movieIdUri);
+                }
+//                Intent detailActivity=new Intent(getContext(),DetailActivity.class).setData(movieIdUri);
+//                startActivity(detailActivity);
             }
         });
         return rootView;
     }
-
+    /**
+     * A callback interface that all activities containing this fragment must
+     * implement. This mechanism allows activities to be notified of item
+     * selections.
+     */
+    public interface Callback {
+        /**
+         * DetailFragmentCallback for when an item has been selected.
+         */
+        public void onItemSelected(Uri movieUri);
+    }
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         Log.d(LOG_TAG,"fas----3");
