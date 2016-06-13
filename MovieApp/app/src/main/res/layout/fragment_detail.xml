@@ -8,7 +8,10 @@
         tools:context=".fragments.DetailActivityFragment"
         tools:showIn="@layout/activity_detail"
         android:weightSum="1">
-
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:src="@drawable/deadpool"/>
         <ListView
 
             android:id="@+id/detailedView"

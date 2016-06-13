@@ -2,22 +2,22 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="horizontal">
+
+    android:baselineAligned="false"
+    android:divider="?android:attr/dividerHorizontal"
+    android:orientation="horizontal"
+    tools:context="com.example.theseus.movieapp.activity.MainActivity">
 
     <fragment
     android:id="@+id/fragment_main"
     android:name="com.example.theseus.movieapp.fragments.MainActivityFragment"
-    android:layout_width="match_parent"
+    android:layout_width="250dp"
     android:layout_height="match_parent"
     tools:layout="@layout/fragment_main" />
 
-    <FrameLayout
-        android:layout_weight="4"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
+    <FrameLayout xmlns:app="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools"
         android:id="@+id/fragment_detail"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        tools:layout="@layout/fragment_detail" />
+        android:layout_height="match_parent"/>
 </LinearLayout>

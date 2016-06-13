@@ -6,10 +6,8 @@ import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-<<<<<<< HEAD
+
 import android.support.v4.app.FragmentManager;
-=======
->>>>>>> SyncAdapter
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -17,7 +15,6 @@ import android.view.MenuItem;
 import android.view.Window;
 
 import com.example.theseus.movieapp.R;
-<<<<<<< HEAD
 import com.example.theseus.movieapp.fragments.DetailActivityFragment;
 import com.example.theseus.movieapp.fragments.MainActivityFragment;
 
@@ -26,13 +23,6 @@ public class MainActivity extends AppCompatActivity {
     private static final String DETAILFRAGMENT_TAG = "DFTAG";
     private   boolean mTwoPane=false;
     private static String mSortBy;
-=======
-import com.example.theseus.movieapp.fragments.MainActivityFragment;
-
-public class MainActivity extends AppCompatActivity {
-    private static final String LOG_TAG=MainActivity.class.getSimpleName();
-    private String mSortBy;
->>>>>>> SyncAdapter
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,31 +31,20 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         if(findViewById(R.id.fragment_detail)!=null){
+            Log.d(LOG_TAG,"rotated");
             mTwoPane=true;
-            if(savedInstanceState==null){
+            if(savedInstanceState!=null){
+                Log.d(LOG_TAG,"new -created");
                 getSupportFragmentManager().beginTransaction()
                         .replace(R.id.fragment_detail,new DetailActivityFragment(),DETAILFRAGMENT_TAG)
                         .commit();
+            }else{
+                Log.d(LOG_TAG,"old -recreated");
             }
         }else {
             mTwoPane=false;
         }
 //
-    }
-    public void onResume() {
-
-
-        String sortBy=getSortBy();
-        Log.d(LOG_TAG,"sortByfunc: "+sortBy+", mSortBy= "+mSortBy);
-        if(mSortBy==null||!mSortBy.equals(sortBy)){
-            MainActivityFragment ff=(MainActivityFragment)getSupportFragmentManager()
-                    .findFragmentById(R.id.fragment);
-            if(ff!=null){
-                ff.onSortOrderChange();
-            }
-            mSortBy=sortBy;
-        }
-        super.onResume();
     }
     public String getSortBy(){
         SharedPreferences prefs= PreferenceManager.getDefaultSharedPreferences(this);
@@ -100,20 +79,18 @@ public class MainActivity extends AppCompatActivity {
 
 
         String sortBy=getSortBy();
-        Log.d(LOG_TAG,"sortByfunc: "+sortBy+", mSortBy= "+mSortBy);
-        if(mSortBy==null||!mSortBy.equals(sortBy)){
+//        Log.d(LOG_TAG,"sortByfunc: "+sortBy+", mSortBy= "+mSortBy);
+        Log.d(LOG_TAG,"fas----0");
+//        if(mSortBy==null||!mSortBy.equals(sortBy)){
             MainActivityFragment ff=(MainActivityFragment)getSupportFragmentManager()
                     .findFragmentById(R.id.fragment_main);
             if(ff!=null){
-                ff.initializeLoader();
+                Log.d(LOG_TAG,"ff not null: ");
+                ff.onSortOrderChange();
             }
             mSortBy=sortBy;
-        }
+//        }
+        Log.d(LOG_TAG,"fas----1");
         super.onResume();
-    }
-    public String getSortBy(){
-        SharedPreferences prefs= PreferenceManager.getDefaultSharedPreferences(this);
-        String sortBy=prefs.getString("sort_by_key","popular");
-        return sortBy;
     }
 }

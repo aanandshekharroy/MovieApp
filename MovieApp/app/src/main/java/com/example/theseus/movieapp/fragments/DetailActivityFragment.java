@@ -104,7 +104,10 @@ public class DetailActivityFragment extends Fragment implements LoaderManager.Lo
         if(intent!=null){
 //            Toast.makeText(getContext(),intent.getDataString(),Toast.LENGTH_SHORT).show();
             movieUri=intent.getData();
-            movieId= MovieContract.MoviesEntry.getMovieIdFromUri(movieUri);
+            if(movieUri!=null){
+                movieId= MovieContract.MoviesEntry.getMovieIdFromUri(movieUri);
+            }
+
             //View view=inflater.inflate(R.layout.movieview,container,false);
             Log.d(LOG_TAG,"2");
             listView=(ListView) rootView.findViewById(R.id.detailedView);

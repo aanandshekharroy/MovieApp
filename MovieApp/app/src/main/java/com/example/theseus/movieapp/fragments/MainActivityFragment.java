@@ -54,8 +54,16 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         getLoaderManager().initLoader(MOVIE_LOADER_ID, null, this);
+        Log.d(LOG_TAG,"fas----2");
         super.onActivityCreated(savedInstanceState);
     }
+
+    public void initializeLoader(){
+        Log.d(LOG_TAG,"reinitialized");
+        getLoaderManager().initLoader(MOVIE_LOADER_ID, null, this);
+
+    }
+
 
     public ImageAdapter mImageAdapter;
     private String SORT_BY="";
@@ -63,21 +71,6 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
         updateMovieGrid();
         getLoaderManager().restartLoader(MOVIE_LOADER_ID, null, this);
     }
-//    @Override
-//    public void onResume() {
-//
-//
-//        String sortBy=getSortBy();
-////        Log.d(LOG_TAG,"sortBy: "+sortBy+", SORT_BY: "+SORT_BY);
-//        if(!sortBy.equals(SORT_BY)){
-////            Log.d(LOG_TAG,"s-1");
-//            updateMovieGrid();
-////            Log.d(LOG_TAG,"s-3");
-//            getLoaderManager().restartLoader(MOVIE_LOADER_ID,null,this);
-//            SORT_BY=sortBy;
-//        }
-//        super.onResume();
-//    }
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
 
     @Override
@@ -92,16 +85,9 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
         return sortBy;
     }
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-    private void updateMovieGrid() {
+    public void updateMovieGrid() {
         Log.d(LOG_TAG,"update called");
         MovieSyncAdapter.syncImmediately(getActivity());
-//        Intent intent=new Intent(getActivity(), MovieService.class);
-//
-//        intent.putExtra(SORT_BY,getSortBy());
-//        getActivity().startService(intent);
-//        FetchMovieData fetchMovieData=new FetchMovieData();
-//        fetchMovieData.execute(getSortBy());
-//        fetchMovieData.getStatus();
 
     }
     static final String EXTRA_MOVIE_TITLE="com.example.theseus.movieapp";
@@ -129,6 +115,7 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        Log.d(LOG_TAG,"fas----3");
         String sortBy=getSortBy();
         if(sortBy.equals(MovieContract.FavouritesEntry.TABLE_NAME)){
             return new CursorLoader(getActivity(), MovieContract.FavouritesEntry.CONTENT_URI,movieProjections,null,null,null);
@@ -141,6 +128,7 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        Log.d(LOG_TAG,"fas----4");
         Log.d(LOG_TAG,"-------------------"+data.getColumnName(COLUMN_MOVIE_ID));
         mImageAdapter.swapCursor(data);
 
@@ -152,6 +140,4 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
         mImageAdapter.swapCursor(null);
 
     }
-
-
 }
