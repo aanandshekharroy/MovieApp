@@ -56,14 +56,28 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
         getLoaderManager().initLoader(MOVIE_LOADER_ID, null, this);
         super.onActivityCreated(savedInstanceState);
     }
-    public void initializeLoader(){
-        Log.d(LOG_TAG,"reinitialized");
-        getLoaderManager().initLoader(MOVIE_LOADER_ID, null, this);
 
-    }
     public ImageAdapter mImageAdapter;
     private String SORT_BY="";
-
+    public void onSortOrderChange(){
+        updateMovieGrid();
+        getLoaderManager().restartLoader(MOVIE_LOADER_ID, null, this);
+    }
+//    @Override
+//    public void onResume() {
+//
+//
+//        String sortBy=getSortBy();
+////        Log.d(LOG_TAG,"sortBy: "+sortBy+", SORT_BY: "+SORT_BY);
+//        if(!sortBy.equals(SORT_BY)){
+////            Log.d(LOG_TAG,"s-1");
+//            updateMovieGrid();
+////            Log.d(LOG_TAG,"s-3");
+//            getLoaderManager().restartLoader(MOVIE_LOADER_ID,null,this);
+//            SORT_BY=sortBy;
+//        }
+//        super.onResume();
+//    }
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
 
     @Override

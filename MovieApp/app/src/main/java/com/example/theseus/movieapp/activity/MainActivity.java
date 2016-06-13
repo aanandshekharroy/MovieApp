@@ -6,7 +6,10 @@ import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+<<<<<<< HEAD
 import android.support.v4.app.FragmentManager;
+=======
+>>>>>>> SyncAdapter
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -14,6 +17,7 @@ import android.view.MenuItem;
 import android.view.Window;
 
 import com.example.theseus.movieapp.R;
+<<<<<<< HEAD
 import com.example.theseus.movieapp.fragments.DetailActivityFragment;
 import com.example.theseus.movieapp.fragments.MainActivityFragment;
 
@@ -22,6 +26,13 @@ public class MainActivity extends AppCompatActivity {
     private static final String DETAILFRAGMENT_TAG = "DFTAG";
     private   boolean mTwoPane=false;
     private static String mSortBy;
+=======
+import com.example.theseus.movieapp.fragments.MainActivityFragment;
+
+public class MainActivity extends AppCompatActivity {
+    private static final String LOG_TAG=MainActivity.class.getSimpleName();
+    private String mSortBy;
+>>>>>>> SyncAdapter
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,7 +52,26 @@ public class MainActivity extends AppCompatActivity {
         }
 //
     }
+    public void onResume() {
 
+
+        String sortBy=getSortBy();
+        Log.d(LOG_TAG,"sortByfunc: "+sortBy+", mSortBy= "+mSortBy);
+        if(mSortBy==null||!mSortBy.equals(sortBy)){
+            MainActivityFragment ff=(MainActivityFragment)getSupportFragmentManager()
+                    .findFragmentById(R.id.fragment);
+            if(ff!=null){
+                ff.onSortOrderChange();
+            }
+            mSortBy=sortBy;
+        }
+        super.onResume();
+    }
+    public String getSortBy(){
+        SharedPreferences prefs= PreferenceManager.getDefaultSharedPreferences(this);
+        String sortBy=prefs.getString("sort_by_key","popular");
+        return sortBy;
+    }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
