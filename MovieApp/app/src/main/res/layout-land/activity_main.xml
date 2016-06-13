@@ -11,7 +11,7 @@
     android:layout_height="match_parent"
     tools:layout="@layout/fragment_main" />
 
-    <fragment xmlns:android="http://schemas.android.com/apk/res/android"
+    <FrameLayout
         android:layout_weight="4"
         xmlns:app="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools"
