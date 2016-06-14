@@ -16,6 +16,9 @@ import com.example.theseus.movieapp.data.MovieContract;
 
 import java.util.List;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 /**
  * Created by theseus on 10/4/16.
  */
@@ -35,12 +38,11 @@ public class ReviewsAdapter extends CursorAdapter{
         super(context, c, flags);
     }
     public static final class ReviewHolder{
-        public  TextView author=null;
-        private  TextView content=null;
+        @BindView(R.id.author)TextView author;
+        @BindView(R.id.content)TextView content;
 
         public ReviewHolder(View review) {
-            author=(TextView)review.findViewById(R.id.author);
-            content=(TextView)review.findViewById(R.id.content);
+            ButterKnife.bind(this,review);
         }
     }
     @Override

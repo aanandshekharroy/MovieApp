@@ -19,6 +19,9 @@ import com.example.theseus.movieapp.R;
 import com.example.theseus.movieapp.data.MovieContract;
 import com.squareup.picasso.Picasso;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 /**
  * Created by theseus on 17/4/16.
  */
@@ -57,19 +60,14 @@ public class DetailActivityAdapter extends CursorAdapter {
     static final int COLUMN_CONTENT=3;
     static final int COLUMN_TRAILER_URL=9;
     public static class ViewHolder {
-        public  TextView movieTitle=null;
-        public  TextView synopsis;
-        public  TextView release_date;
-        public  ImageView poster;
-        public  TextView votes;
-        public  Button favouriteButton;
+        @BindView(R.id.title)TextView movieTitle;
+        @BindView(R.id.synopsis)TextView synopsis;
+        @BindView(R.id.release_date)TextView release_date;
+        @BindView(R.id.poster)ImageView poster;
+        @BindView(R.id.votes) TextView votes;
+        @BindView(R.id.favourite) Button favouriteButton;
         public ViewHolder(View view) {
-            movieTitle =(TextView)view.findViewById(R.id.title);
-            synopsis=(TextView)view.findViewById(R.id.synopsis);
-            release_date=(TextView)view.findViewById(R.id.release_date);
-            poster=(ImageView)view.findViewById(R.id.poster);
-            votes=(TextView)view.findViewById(R.id.votes);
-            favouriteButton=(Button)view.findViewById(R.id.favourite);
+            ButterKnife.bind(this, view);
         }
     }
     View baseView=null;

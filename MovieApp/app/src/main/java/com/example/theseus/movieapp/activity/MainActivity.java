@@ -20,6 +20,8 @@ import com.example.theseus.movieapp.fragments.DetailActivityFragment;
 import com.example.theseus.movieapp.fragments.MainActivityFragment;
 import com.example.theseus.movieapp.sync.MovieSyncAdapter;
 
+import butterknife.ButterKnife;
+
 public class MainActivity extends AppCompatActivity implements MainActivityFragment.Callback {
     public static String LOG_TAG=MainActivity.class.getSimpleName();
     private static final String DETAILFRAGMENT_TAG = "DFTAG";
@@ -33,6 +35,8 @@ public class MainActivity extends AppCompatActivity implements MainActivityFragm
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        ButterKnife.bind(this);
+
         if(findViewById(R.id.fragment_detail)!=null){
             Log.d(LOG_TAG,"rotated");
             mTwoPane=true;

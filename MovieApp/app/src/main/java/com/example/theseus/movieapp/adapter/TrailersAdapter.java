@@ -19,6 +19,9 @@ import android.widget.Toast;
 import com.example.theseus.movieapp.R;
 import com.example.theseus.movieapp.data.MovieContract;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 /**
  * Created by theseus on 5/6/16.
  */
@@ -39,10 +42,11 @@ public class TrailersAdapter extends CursorAdapter  {
         this.context=context;
     }
     public static final class ViewHolder{
-        public  TextView trailersUrl=null;
+        @BindView(R.id.trailerUrl) TextView trailersUrl;
 
         public ViewHolder(View trailer) {
-            trailersUrl=(TextView)trailer.findViewById(R.id.trailerUrl);
+            ButterKnife.bind(this, trailer);
+
         }
     }
     @Override

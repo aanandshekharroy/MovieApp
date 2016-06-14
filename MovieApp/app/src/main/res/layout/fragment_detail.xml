@@ -4,8 +4,6 @@
         android:orientation="vertical"
         android:layout_height="wrap_content"
         android:paddingBottom="2dp"
-
-        android:paddingTop="2dp"
         tools:context=".fragments.DetailActivityFragment"
         tools:showIn="@layout/activity_detail"
         android:weightSum="1">

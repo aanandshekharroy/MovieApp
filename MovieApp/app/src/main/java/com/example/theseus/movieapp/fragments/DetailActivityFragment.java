@@ -27,6 +27,8 @@ import com.example.theseus.movieapp.adapter.ReviewsAdapter;
 import com.example.theseus.movieapp.adapter.TrailersAdapter;
 import com.example.theseus.movieapp.data.MovieContract;
 
+import butterknife.ButterKnife;
+
 /**
  * A placeholder fragment containing a simple view.
  */
@@ -103,6 +105,8 @@ public class DetailActivityFragment extends Fragment implements LoaderManager.Lo
             movieId= MovieContract.MoviesEntry.getMovieIdFromUri(movieUri);
         }
         View rootView=inflater.inflate(R.layout.fragment_detail, container, false);
+        ButterKnife.bind(this,rootView);
+
         detailActivityAdapter=new DetailActivityAdapter(getContext(),null,0);
         reviewsAdapter=new ReviewsAdapter(getContext(),null,0);
         trailersAdapter=new TrailersAdapter(getContext(),null,0);

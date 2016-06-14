@@ -7,12 +7,16 @@ import android.support.v7.widget.Toolbar;
 import com.example.theseus.movieapp.R;
 import com.example.theseus.movieapp.fragments.DetailActivityFragment;
 
+import butterknife.ButterKnife;
+
 public class DetailActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail);
+        ButterKnife.bind(this);
+
         if(savedInstanceState==null){
             Bundle arguments = new Bundle();
             arguments.putParcelable(DetailActivityFragment.DETAIL_URI, getIntent().getData());
