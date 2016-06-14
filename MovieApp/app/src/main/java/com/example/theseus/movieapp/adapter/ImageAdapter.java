@@ -65,7 +65,7 @@ public class ImageAdapter extends CursorAdapter {
 //        bindView(imageView,context,cursor);
         View rootView= LayoutInflater.from(context).inflate(R.layout.poster,parent,false);
         imageView=(ImageView)rootView.findViewById(R.id.poster);
-        bindView(imageView,context,cursor);
+//        bindView(imageView,context,cursor);
         return imageView;
     }
 
