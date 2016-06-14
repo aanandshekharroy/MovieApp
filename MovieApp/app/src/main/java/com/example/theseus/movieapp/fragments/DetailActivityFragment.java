@@ -18,7 +18,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.commonsware.cwac.merge.MergeAdapter;
 import com.example.theseus.movieapp.adapter.DetailActivityAdapter;
@@ -38,6 +40,7 @@ public class DetailActivityFragment extends Fragment implements LoaderManager.Lo
     private static final int LOADER_REVIEW_ID=1;
     private static final int LOADER_TRAILER_ID=2;
     ListView listView;
+    Cursor currentCursor=null;
     ReviewsAdapter reviewsAdapter;
     TrailersAdapter trailersAdapter;
     public static final String DETAIL_URI = "URI";
@@ -80,12 +83,19 @@ public class DetailActivityFragment extends Fragment implements LoaderManager.Lo
         String sortBy=prefs.getString("sort_by_key","popular");
         return sortBy;
     }
+    boolean mIsNull=false;
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        Log.d(LOG_TAG,"init-1");
         getLoaderManager().initLoader(LOADER_MOVIE_ID,null,this);
 //        getLoaderManager().initLoader()
-        getLoaderManager().initLoader(LOADER_REVIEW_ID,null,this);
-        getLoaderManager().initLoader(LOADER_TRAILER_ID,null,this);
+
+//        if(!mIsNull){
+            getLoaderManager().initLoader(LOADER_REVIEW_ID,null,this);
+            Log.d(LOG_TAG,"init-2");
+            getLoaderManager().initLoader(LOADER_TRAILER_ID,null,this);
+            Log.d(LOG_TAG,"init-3");
+//        }
 
         super.onActivityCreated(savedInstanceState);
     }
@@ -94,7 +104,7 @@ public class DetailActivityFragment extends Fragment implements LoaderManager.Lo
     public DetailActivityFragment() {
     }
 
-
+    View rootView;
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -102,9 +112,10 @@ public class DetailActivityFragment extends Fragment implements LoaderManager.Lo
         Bundle arguments = getArguments();
         if (arguments != null) {
             movieUri = arguments.getParcelable(DetailActivityFragment.DETAIL_URI);
+            Log.d(LOG_TAG,"movieUri--detailed--"+movieUri);
             movieId= MovieContract.MoviesEntry.getMovieIdFromUri(movieUri);
         }
-        View rootView=inflater.inflate(R.layout.fragment_detail, container, false);
+        rootView=inflater.inflate(R.layout.fragment_detail, container, false);
         ButterKnife.bind(this,rootView);
 
         detailActivityAdapter=new DetailActivityAdapter(getContext(),null,0);
@@ -116,18 +127,24 @@ public class DetailActivityFragment extends Fragment implements LoaderManager.Lo
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         if(null!=movieUri){
+            CursorLoader newCursorLoader=null;
             switch (id){
                 case LOADER_MOVIE_ID:
                     Log.d(LOG_TAG,"3");
-                    return new CursorLoader(getActivity(),movieUri,movieProjections,null,null,null);
+                    newCursorLoader=new CursorLoader(getActivity(),movieUri,movieProjections,null,null,null);
+                    break;
                 case LOADER_REVIEW_ID:
                     Log.d(LOG_TAG,"4");
                     Uri reviewUri= MovieContract.ReviewsEntry.buildUriFromID(movieId);
-                    return new CursorLoader(getContext(),reviewUri,reviewsProjection,null,null,null);
+                    newCursorLoader=new CursorLoader(getContext(),reviewUri,reviewsProjection,null,null,null);
+                    break;
                 case LOADER_TRAILER_ID:
+                    Log.d(LOG_TAG,"5");
                     Uri trailerUri= MovieContract.TrailersEntry.buildUriFromMovieId(movieId);
-                    return new CursorLoader(getContext(),trailerUri,trailersProjection,null,null,null);
+                    newCursorLoader=new CursorLoader(getContext(),trailerUri,trailersProjection,null,null,null);
+                    break;
             }
+            return newCursorLoader;
         }
         return null;
 
@@ -138,20 +155,42 @@ public class DetailActivityFragment extends Fragment implements LoaderManager.Lo
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         switch (loader.getId()){
             case LOADER_MOVIE_ID:
-                Log.d(LOG_TAG,"5");
+                Log.d(LOG_TAG,"6-movie data= "+data.getCount());
 //                detailActivityAdapter.c
+
+                if(data.getCount()==0){
+                    mIsNull=true;
+                    if(rootView!=null){
+                        rootView.findViewById(R.id.removedFromFav).setVisibility(View.VISIBLE);
+                    }
+
+                }
                 detailActivityAdapter.swapCursor(data);
                 break;
             case LOADER_REVIEW_ID:
-                Log.d(LOG_TAG,"6");
-                reviewsAdapter.swapCursor(data);
+                Log.d(LOG_TAG,"7");
+                if(!mIsNull){
+                    reviewsAdapter.swapCursor(data);
+                }else{
+                    if(rootView!=null){
+//                        rootView.findViewById(R.id.removedFromFav).setVisibility(View.VISIBLE);
+                    }
+                }
+
                 break;
             case LOADER_TRAILER_ID:
-                trailersAdapter.swapCursor(data);
+                Log.d(LOG_TAG,"8");
+                if(!mIsNull) {
+                    trailersAdapter.swapCursor(data);
+
+                }else{
+                    if(rootView!=null){
+//                        rootView.findViewById(R.id.removedFromFav).setVisibility(View.VISIBLE);
+                    }
+                }
                 mergeAdapter.addAdapter(detailActivityAdapter);
                 mergeAdapter.addAdapter(reviewsAdapter);
                 mergeAdapter.addAdapter(trailersAdapter);
-                //linearLayout.addView();
                 listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                     @Override
                     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -166,6 +205,8 @@ public class DetailActivityFragment extends Fragment implements LoaderManager.Lo
                     }
                 });
                 listView.setAdapter(mergeAdapter);
+                //linearLayout.addView();
+
                 break;
 
 
@@ -178,11 +219,14 @@ public class DetailActivityFragment extends Fragment implements LoaderManager.Lo
     public void onLoaderReset(Loader<Cursor> loader) {
         switch (loader.getId()){
             case LOADER_MOVIE_ID:
-                Log.d(LOG_TAG,"7");
+                Log.d(LOG_TAG,"9");
                 detailActivityAdapter.swapCursor(null);
                 break;
             case LOADER_REVIEW_ID:
-                Log.d(LOG_TAG,"8");
+                Log.d(LOG_TAG,"10");
+                reviewsAdapter.swapCursor(null);
+            case LOADER_TRAILER_ID:
+                Log.d(LOG_TAG,"11");
                 reviewsAdapter.swapCursor(null);
 
         }

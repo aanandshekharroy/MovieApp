@@ -59,15 +59,15 @@ public class MovieProvider extends ContentProvider {
     static UriMatcher buildUriMatcher(){
         UriMatcher matcher=new UriMatcher(UriMatcher.NO_MATCH);
         String authority=MovieContract.CONTENT_AUTHORITY;
-        //matcher.addURI(authority,MovieContract.FavouritesEntry.CONTENT_URI+"/*",FAVOURITE_MOVIE_WITH_ID);
-        //matcher.addURI(authority,MovieContract.PATH_MOVIE+"/"+POPULARITY,MOVIE_WITH_GENRE_POPULARITY);
-        //matcher.addURI(authority,MovieContract.PATH_MOVIE+"/"+TOPRATED,MOVIE_WITH_GENRE_TOP_RATED);
-        //matcher.addURI(authority,MovieContract.PATH_MOVIE+"/"+FAVOURITE,MOVIE_WITH_GENRE_FAVOURITE);
+        matcher.addURI(authority, MovieContract.MoviesEntry.TABLE_NAME+"/"+
+                MovieContract.FavouritesEntry.PATH_FAVOURITES,FAVOURITES);
+        matcher.addURI(authority, MovieContract.MoviesEntry.TABLE_NAME+"/"+
+                MovieContract.FavouritesEntry.PATH_FAVOURITES+"/#",FAVOURITE_MOVIE_WITH_ID);
         matcher.addURI(authority,"movies/*",MOVIE_WITH_GENRE);
         matcher.addURI(authority,"movies/*/#",MOVIE_WITH_ID);
 
-        matcher.addURI(authority, MovieContract.FavouritesEntry.PATH_FAVOURITES,FAVOURITES);
-        matcher.addURI(authority, MovieContract.FavouritesEntry.PATH_FAVOURITES+"/*",FAVOURITE_MOVIE_WITH_ID);
+//        matcher.addURI(authority, MovieContract.FavouritesEntry.PATH_FAVOURITES,FAVOURITES);
+//        matcher.addURI(authority, MovieContract.FavouritesEntry.PATH_FAVOURITES+"/*",FAVOURITE_MOVIE_WITH_ID);
 
 
         matcher.addURI(authority,MovieContract.PATH_REVIEWS,REVIEWS);
@@ -135,7 +135,7 @@ public class MovieProvider extends ContentProvider {
                 retCursor=reviewsQueryBuilder.query(mDBHelper.getReadableDatabase(),projection,null,null,null,null,sortOrder);
                 break;
         }
-        Log.d(LOG_TAG,"\ncursor sixe: "+retCursor.getCount()+",columns: "+retCursor.toString());
+        Log.d(LOG_TAG,"\n---cursor sixe: "+retCursor.getCount());
         retCursor.setNotificationUri(getContext().getContentResolver(), uri);
 
         return retCursor;

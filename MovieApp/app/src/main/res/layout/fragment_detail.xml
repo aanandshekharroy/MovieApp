@@ -7,12 +7,22 @@
         tools:context=".fragments.DetailActivityFragment"
         tools:showIn="@layout/activity_detail"
         android:weightSum="1">
+        <ImageView
+            android:visibility="gone"
+            android:id="@+id/removedFromFav"
+            android:layout_gravity="center_vertical"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:src="@drawable/removed"
+            android:text="Removed from favourites"/>
         <ListView
 
             android:id="@+id/detailedView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="horizontal"></ListView>
+            android:orientation="horizontal">
+
+        </ListView>
 
 
     </LinearLayout>

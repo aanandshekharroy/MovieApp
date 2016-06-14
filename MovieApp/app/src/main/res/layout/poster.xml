@@ -3,7 +3,7 @@
     android:id="@+id/poster"
     android:src="@drawable/sample_0"
 
-
+    android:paddingTop="4dp"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:adjustViewBounds="true"

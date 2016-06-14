@@ -107,6 +107,7 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
                 Cursor cursor=(Cursor) parent.getItemAtPosition(position);
                 if(cursor!=null){
                     Uri movieIdUri=MovieContract.MoviesEntry.buildUriFromSortOrderAndMovieId(getSortBy(),cursor.getString(COLUMN_MOVIE_ID));
+                    Log.d(LOG_TAG,"onselect uri: "+movieIdUri);
                     ((Callback) getActivity())
                             .onItemSelected(movieIdUri);
                 }
