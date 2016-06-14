@@ -40,6 +40,8 @@ public class ReviewsAdapter extends CursorAdapter{
     public static final class ReviewHolder{
         @BindView(R.id.author)TextView author;
         @BindView(R.id.content)TextView content;
+        @BindView(R.id.reviewsLabel) TextView reviewsLabel;
+
 
         public ReviewHolder(View review) {
             ButterKnife.bind(this,review);
@@ -58,5 +60,8 @@ public class ReviewsAdapter extends CursorAdapter{
         ReviewHolder viewHolder=(ReviewHolder)review.getTag();
         viewHolder.author.setText(cursor.getString(COLUMN_AUTHOR));
         viewHolder.content.setText(cursor.getString(COLUMN_CONTENT));
+        if(cursor.getPosition()==0){
+            viewHolder.reviewsLabel.setVisibility(View.VISIBLE);
+        }
     }
 }
