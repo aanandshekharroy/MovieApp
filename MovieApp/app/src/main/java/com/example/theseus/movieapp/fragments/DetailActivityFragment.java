@@ -172,9 +172,7 @@ public class DetailActivityFragment extends Fragment implements LoaderManager.Lo
                 if(!mIsNull){
                     reviewsAdapter.swapCursor(data);
                 }else{
-                    if(rootView!=null){
-//                        rootView.findViewById(R.id.removedFromFav).setVisibility(View.VISIBLE);
-                    }
+//                    reviewsAdapter.swapCursor(data.se);
                 }
 
                 break;
