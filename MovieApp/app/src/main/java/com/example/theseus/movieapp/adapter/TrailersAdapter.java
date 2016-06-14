@@ -43,7 +43,7 @@ public class TrailersAdapter extends CursorAdapter  {
     }
     public static final class ViewHolder{
         @BindView(R.id.trailerUrl) TextView trailersUrl;
-
+        @BindView(R.id.trailersLabel) TextView trailersLabel;
         public ViewHolder(View trailer) {
             ButterKnife.bind(this, trailer);
 
@@ -59,10 +59,13 @@ public class TrailersAdapter extends CursorAdapter  {
 
     @Override
     public void bindView(View view, Context context, Cursor cursor) {
-        currentCursor=cursor;
+        ViewHolder viewHolder=(ViewHolder)view.getTag();
         String trailerLabel=Integer.toString(cursor.getPosition()+1);
-        TextView trailersUrl=(TextView)view.findViewById(R.id.trailerUrl);
-        trailersUrl.setText(trailerLabel);
+
+        viewHolder.trailersUrl.setText(trailerLabel);
+        if(cursor.getPosition()==0){
+            viewHolder.trailersLabel.setVisibility(View.VISIBLE);
+        }
     }
 
 //    @Override

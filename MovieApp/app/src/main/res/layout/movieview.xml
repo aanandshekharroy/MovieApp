@@ -36,11 +36,19 @@
             android:id="@+id/poster"
             android:src="@drawable/sample_0" />
         <LinearLayout
-            android:paddingTop="50dp"
+            android:paddingTop="2dp"
             android:paddingLeft="20dp"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="vertical">
+                <TextView
+                    android:textColor="@color/aqua"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                android:layout_marginBottom="10dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Releasing on"
+                 />
                 <TextView
                     android:layout_marginBottom="10dp"
                     android:layout_width="wrap_content"
@@ -70,13 +78,24 @@
         </LinearLayout>
 
     <TextView
+        android:layout_marginTop="10dp"
+        android:layout_marginLeft="10dp"
+        android:textColor="@color/aqua"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:layout_marginBottom="10dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Synopsis"
+        />
+    <TextView
         android:layout_marginLeft="10dp"
         android:layout_marginTop="10dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceMedium"
+
         android:text="Synopsis"
         android:id="@+id/synopsis"/>
+
 </LinearLayout>
 
 
