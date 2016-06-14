@@ -23,10 +23,6 @@ public class DetailActivity extends AppCompatActivity {
                     .add(R.id.fragment_detail,fragment)
                     .commit();
         }
-//        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-//        setSupportActionBar(toolbar);
-
-//        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
 
 }

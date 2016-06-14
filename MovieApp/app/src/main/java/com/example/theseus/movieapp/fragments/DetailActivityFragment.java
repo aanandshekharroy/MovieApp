@@ -135,6 +135,7 @@ public class DetailActivityFragment extends Fragment implements LoaderManager.Lo
         switch (loader.getId()){
             case LOADER_MOVIE_ID:
                 Log.d(LOG_TAG,"5");
+//                detailActivityAdapter.c
                 detailActivityAdapter.swapCursor(data);
                 break;
             case LOADER_REVIEW_ID:

@@ -18,6 +18,7 @@ import android.view.Window;
 import com.example.theseus.movieapp.R;
 import com.example.theseus.movieapp.fragments.DetailActivityFragment;
 import com.example.theseus.movieapp.fragments.MainActivityFragment;
+import com.example.theseus.movieapp.sync.MovieSyncAdapter;
 
 public class MainActivity extends AppCompatActivity implements MainActivityFragment.Callback {
     public static String LOG_TAG=MainActivity.class.getSimpleName();
@@ -46,6 +47,8 @@ public class MainActivity extends AppCompatActivity implements MainActivityFragm
         }else {
             mTwoPane=false;
         }
+        MovieSyncAdapter.initializeSyncAdapter(this);
+
 //
     }
     public String getSortBy(){
@@ -99,12 +102,13 @@ public class MainActivity extends AppCompatActivity implements MainActivityFragm
     @Override
     public void onResume() {
 
-
+    super.onResume();
         String sortBy=getSortBy();
+        MainActivityFragment ff = null;
 //        Log.d(LOG_TAG,"sortByfunc: "+sortBy+", mSortBy= "+mSortBy);
         Log.d(LOG_TAG,"fas----0");
-        if(mSortBy==null||!mSortBy.equals(sortBy)){
-            MainActivityFragment ff=(MainActivityFragment)getSupportFragmentManager()
+        if(sortBy!=null||!mSortBy.equals(sortBy)){
+            ff=(MainActivityFragment)getSupportFragmentManager()
                     .findFragmentById(R.id.fragment_main);
             if(ff!=null){
                 Log.d(LOG_TAG,"ff not null: ");
@@ -117,7 +121,14 @@ public class MainActivity extends AppCompatActivity implements MainActivityFragm
             }
             mSortBy=sortBy;
         }
+//        else{
+//            ff=(MainActivityFragment)getSupportFragmentManager()
+//                    .findFragmentById(R.id.fragment_main);
+//            if(ff!=null){
+//
+//                ff.onSortOrderChange();
+//            }
+//        }
         Log.d(LOG_TAG,"fas----1");
-        super.onResume();
     }
 }

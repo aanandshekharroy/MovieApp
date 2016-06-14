@@ -64,7 +64,7 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
 
     }
 
-
+    View rootView;
     public ImageAdapter mImageAdapter;
     private String SORT_BY="";
     public void onSortOrderChange(){
@@ -96,7 +96,7 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
                              Bundle savedInstanceState) {
         Log.d(LOG_TAG,"step: 5");
         mImageAdapter=new ImageAdapter(getActivity(),null,0);
-        View rootView= inflater.inflate(R.layout.fragment_main, container, false);
+        rootView= inflater.inflate(R.layout.fragment_main, container, false);
 
         movieGrid=(GridView)rootView.findViewById(R.id.movieGrid);
         movieGrid.setAdapter(mImageAdapter);
@@ -145,7 +145,7 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
         Log.d(LOG_TAG,"fas----4");
         Log.d(LOG_TAG,"-------------------"+data.getColumnName(COLUMN_MOVIE_ID));
         mImageAdapter.swapCursor(data);
-
+//        rootView.findViewById(R.id.loadingGif).setVisibility(View.GONE);
     }
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)

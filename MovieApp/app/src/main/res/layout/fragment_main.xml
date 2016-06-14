@@ -10,7 +10,13 @@
     tools:showIn="@layout/activity_main"
     tools:targetApi="ice_cream_sandwich"
     android:orientation="horizontal">
-
+<ProgressBar
+    android:visibility="gone"
+    android:indeterminate="true"
+    android:id="@+id/loadingGif"
+    android:layout_gravity="center"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content" />
     <GridView
         android:id="@+id/movieGrid"
         android:layout_width="wrap_content"
