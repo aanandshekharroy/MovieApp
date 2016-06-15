@@ -92,18 +92,9 @@ public class DetailActivityFragment extends Fragment implements LoaderManager.Lo
     boolean mIsNull=false;
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        Log.d(LOG_TAG,"init-1");
         getLoaderManager().initLoader(LOADER_MOVIE_ID,null,this);
-//        getLoaderManager().initLoader()
-
-//        if(!mIsNull){
-            getLoaderManager().initLoader(LOADER_REVIEW_ID,null,this);
-            Log.d(LOG_TAG,"init-2");
-            getLoaderManager().initLoader(LOADER_TRAILER_ID,null,this);
-            Log.d(LOG_TAG,"init-3");
-//        }
-
-        super.onActivityCreated(savedInstanceState);
+        getLoaderManager().initLoader(LOADER_REVIEW_ID,null,this);
+        getLoaderManager().initLoader(LOADER_TRAILER_ID,null,this);super.onActivityCreated(savedInstanceState);
     }
     DetailActivityAdapter detailActivityAdapter;
 

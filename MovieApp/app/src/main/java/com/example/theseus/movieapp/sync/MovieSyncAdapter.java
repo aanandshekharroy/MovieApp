@@ -17,9 +17,16 @@ import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
+import android.widget.Toast;
 
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.example.theseus.movieapp.BuildConfig;
 import com.example.theseus.movieapp.R;
+import com.example.theseus.movieapp.activity.MainActivity;
 import com.example.theseus.movieapp.data.MovieContract;
 
 import org.json.JSONArray;
@@ -48,16 +55,13 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
         String sortBy=prefs.getString("sort_by_key","popular");
         return sortBy;
     }
-
+    RequestQueue requestQueue=null;
     @Override
     public void onPerformSync(Account account, Bundle extras, String authority, ContentProviderClient provider, SyncResult syncResult) {
-        Log.d(LOG_TAG, "onPerformSync Called.");
         String sortBy=getSortBy();
-        Log.d(LOG_TAG,"error 1");
-        this.mSortBy=sortBy;
+      this.mSortBy=sortBy;
         String baseUrl = null;
         final String APP_KEY="api_key";
-        // params[0]="popular";
         if(sortBy.contains(MovieContract.FavouritesEntry.TABLE_NAME)){
             onPostExecute(MovieContract.FavouritesEntry.CONTENT_URI);
             return;
@@ -66,55 +70,25 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
 
         Uri builtUri=Uri.parse(baseUrl).buildUpon()
                 .appendQueryParameter(APP_KEY, BuildConfig.MOVIE_API_KEY).build();
-        HttpURLConnection urlConnection = null;
-        BufferedReader reader=null;
-        String movieData = null;
-        try {
-            URL url=new URL(builtUri.toString());
-            urlConnection=(HttpURLConnection)url.openConnection();
-            urlConnection.setRequestMethod("GET");
-            Log.d(LOG_TAG,"network-call");
-            urlConnection.connect();
-            InputStream inputStream=urlConnection.getInputStream();
-            StringBuffer buffer = new StringBuffer();
-            if (inputStream == null) {
-                onPostExecute(null);
-                return ;
-            }
-            reader = new BufferedReader(new InputStreamReader(inputStream));
-
-            String line;
-            while ((line = reader.readLine()) != null) {
-                buffer.append(line + "\n");
-            }
-
-            if (buffer.length() == 0) {
-                // Stream was empty.  No point in parsing.
-                onPostExecute(null);
-                return ;
-            }
-            movieData = buffer.toString();
-        } catch (java.io.IOException e) {
-            e.printStackTrace();
-        }
-        finally {
-            if(urlConnection!=null){
-                urlConnection.disconnect();
-            }
-            if(reader!=null){
-                try {
-                    reader.close();
-                }catch (final IOException e){
-                    Log.e(LOG_TAG,"Error closing stream");
-                }
-            }
-        }
-        try {
-            onPostExecute(jsonParser(movieData));
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        onPostExecute(null);
+        StringRequest stringRequest = new StringRequest(builtUri.toString(),
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        try {
+                            onPostExecute(jsonParser(response));
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Toast.makeText(getContext(),"Something went wrong",Toast.LENGTH_LONG).show();
+                    }
+                });
+        requestQueue = Volley.newRequestQueue(getContext());
+        requestQueue.add(stringRequest);
     }
     public static void configurePeriodicSync(Context context, int syncInterval, int flexTime) {
         Account account = getSyncAccount(context);
@@ -237,14 +211,8 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
                 .appendPath("reviews")
                 .appendQueryParameter(APP_KEY, BuildConfig.MOVIE_API_KEY).build();
 
-        String trailersData=getJson(builtUriTrailer);
-        String reviewsData=getJson(builtUriReviews);
-        try {
-            trailers(trailersData,movieId);
-            reviews(reviewsData,movieId);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        getJson(builtUriTrailer,movieId,"trailers");
+        getJson(builtUriReviews,movieId,"reviews");
         return ;
     }
 
@@ -286,49 +254,34 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
             getContext().getContentResolver().bulkInsert(MovieContract.TrailersEntry.CONTENT_URI,contentValues);
         }
     }
-    private String getJson(Uri builtUri) {
-        HttpURLConnection urlConnection = null;
-        BufferedReader reader=null;
+    private void getJson(Uri builtUri, final String movieId, final String reviews) {
         String data=null;
-        try {
-            URL url=new URL(builtUri.toString());
-            urlConnection=(HttpURLConnection)url.openConnection();
-            urlConnection.setRequestMethod("GET");
-            urlConnection.connect();
-            InputStream inputStream=urlConnection.getInputStream();
-            StringBuffer buffer = new StringBuffer();
-            if (inputStream == null) {
-                // Nothing to do.
-                return null;
-            }
-            reader = new BufferedReader(new InputStreamReader(inputStream));
-
-            String line;
-            while ((line = reader.readLine()) != null) {
-                buffer.append(line + "\n");
-            }
-
-            if (buffer.length() == 0 ){
-                // Stream was empty.  No point in parsing.
-                return null;
-            }
-            data = buffer.toString();
-        } catch (java.io.IOException e) {
-            e.printStackTrace();
-        }
-        finally {
-            if(urlConnection!=null){
-                urlConnection.disconnect();
-            }
-            if(reader!=null){
-                try {
-                    reader.close();
-                }catch (final IOException e){
-                    Log.e(LOG_TAG,"Error closing stream");
-                }
-            }
-        }
-        return data;
+        StringRequest stringRequest = new StringRequest(builtUri.toString(),
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        if(reviews.equals("reviews")){
+                            try {
+                                reviews(response,movieId);
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                        }else if(reviews.equals("trailers")){
+                            try {
+                                trailers(response,movieId);
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+//                        Toast.makeText(getContext(),"Something went wrong",Toast.LENGTH_LONG).show();
+                    }
+                });
+        requestQueue.add(stringRequest);
     }
     /**
      * Helper method to get the fake account to be used with SyncAdapter, or make a new one
