@@ -21,7 +21,7 @@
 
 
     <LinearLayout
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="10dp"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="horizontal">
@@ -82,14 +82,14 @@
         android:layout_marginLeft="10dp"
         android:textColor="@color/aqua"
         android:textAppearance="?android:attr/textAppearanceMedium"
-        android:layout_marginBottom="10dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Synopsis"
         />
     <TextView
-        android:layout_marginLeft="10dp"
-        android:layout_marginTop="10dp"
+        android:layout_margin="10dp"
+
+
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
 

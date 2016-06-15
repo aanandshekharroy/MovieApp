@@ -13,8 +13,13 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v4.view.MenuItemCompat;
+import android.support.v7.widget.ShareActionProvider;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -47,6 +52,7 @@ public class DetailActivityFragment extends Fragment implements LoaderManager.Lo
     Uri movieUri;
     String movieId;
     MergeAdapter mergeAdapter=new MergeAdapter();
+    String mShare="";
     static final String[] movieProjections={
             //MovieContract.MoviesEntry.TABLE_NAME+"."+MovieContract.MoviesEntry.COLUMN_MOVIE_ID+" AS "+ BaseColumns._ID,
             MovieContract.MoviesEntry.TABLE_NAME+"."+MovieContract.MoviesEntry._ID,
@@ -102,6 +108,7 @@ public class DetailActivityFragment extends Fragment implements LoaderManager.Lo
     DetailActivityAdapter detailActivityAdapter;
 
     public DetailActivityFragment() {
+        setHasOptionsMenu(true);
     }
 
     View rootView;
@@ -123,7 +130,15 @@ public class DetailActivityFragment extends Fragment implements LoaderManager.Lo
         trailersAdapter=new TrailersAdapter(getContext(),null,0);
         listView=(ListView) rootView.findViewById(R.id.detailedView);return rootView;
     }
-
+    private Intent createShareIntent(){
+        Intent intent=new Intent(Intent.ACTION_SEND);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
+        intent.setType("text/plain");
+        Log.d(LOG_TAG, "just-sending "+mShare);
+        intent.putExtra(Intent.EXTRA_TEXT,
+                mShare+" #MovieApp");
+        return intent;
+    }
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         if(null!=movieUri){
@@ -150,6 +165,21 @@ public class DetailActivityFragment extends Fragment implements LoaderManager.Lo
 
     }
 
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.detailfragment,menu);
+        MenuItem menuItem=menu.findItem(R.id.action_share);
+        ShareActionProvider mShareActionProvider=
+                (ShareActionProvider) MenuItemCompat.getActionProvider(menuItem);
+        if (mShareActionProvider != null ) {
+            mShareActionProvider.setShareIntent(createShareIntent());
+        } else {
+            Log.d(LOG_TAG, "Share Action Provider is null?");
+        }
+//        super.onCreateOptionsMenu(menu, inflater);
+
+    }
+
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
@@ -164,6 +194,11 @@ public class DetailActivityFragment extends Fragment implements LoaderManager.Lo
                         rootView.findViewById(R.id.removedFromFav).setVisibility(View.VISIBLE);
                     }
 
+                }else{
+                    data.moveToFirst();
+//                    Log.d(LOG_TAG,"sharing: "+data.getString(COLUMN_TITLE));
+//                    mShare=mShare+data.getString(COLUMN_TITLE);
+                    mShare=mShare+(data.getString(COLUMN_TITLE));
                 }
                 detailActivityAdapter.swapCursor(data);
                 break;
@@ -179,7 +214,19 @@ public class DetailActivityFragment extends Fragment implements LoaderManager.Lo
             case LOADER_TRAILER_ID:
                 Log.d(LOG_TAG,"8");
                 if(!mIsNull) {
+                    if(data.getCount()!=0){
+                        data.moveToFirst();
+                        if(data.getPosition()==0){
+
+                        Log.d(LOG_TAG,"sharing-tra: "+data.getString(2));
+                            mShare=mShare+(" Trailer 1: "+data.getString(2));
+//                            mShare=mShare+;
+
+                        }
+
+                    }
                     trailersAdapter.swapCursor(data);
+                    Log.d(LOG_TAG,"sharing: "+mShare);
 
                 }else{
                     if(rootView!=null){

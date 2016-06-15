@@ -73,4 +73,5 @@
     <string name="favourite_value">favourites</string>
     <string name="markAsFavourite">Mark as favourite</string>
     <string name="removeFromFavourites">Remove from favourites</string>
+    <string name="action_share">Share</string>
 </resources>
