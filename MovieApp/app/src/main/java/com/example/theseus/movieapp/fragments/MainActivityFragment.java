@@ -26,6 +26,9 @@ import com.example.theseus.movieapp.activity.DetailActivity;
 import com.example.theseus.movieapp.data.MovieContract;
 import com.example.theseus.movieapp.sync.MovieSyncAdapter;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 /**
  * A placeholder fragment containing a simple view.
  */
@@ -90,15 +93,18 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
         MovieSyncAdapter.syncImmediately(getActivity());
 
     }
+    @BindView(R.id.empty_view) View emptyView;
     static final String EXTRA_MOVIE_TITLE="com.example.theseus.movieapp";
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
         Log.d(LOG_TAG,"step: 5");
         mImageAdapter=new ImageAdapter(getActivity(),null,0);
         rootView= inflater.inflate(R.layout.fragment_main, container, false);
-
+        ButterKnife.bind(this,rootView);
         movieGrid=(GridView)rootView.findViewById(R.id.movieGrid);
+        movieGrid.setEmptyView(emptyView);
         movieGrid.setAdapter(mImageAdapter);
         movieGrid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @TargetApi(Build.VERSION_CODES.JELLY_BEAN)

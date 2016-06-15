@@ -65,11 +65,6 @@ public class MovieProvider extends ContentProvider {
                 MovieContract.FavouritesEntry.PATH_FAVOURITES+"/#",FAVOURITE_MOVIE_WITH_ID);
         matcher.addURI(authority,"movies/*",MOVIE_WITH_GENRE);
         matcher.addURI(authority,"movies/*/#",MOVIE_WITH_ID);
-
-//        matcher.addURI(authority, MovieContract.FavouritesEntry.PATH_FAVOURITES,FAVOURITES);
-//        matcher.addURI(authority, MovieContract.FavouritesEntry.PATH_FAVOURITES+"/*",FAVOURITE_MOVIE_WITH_ID);
-
-
         matcher.addURI(authority,MovieContract.PATH_REVIEWS,REVIEWS);
         matcher.addURI(authority,MovieContract.PATH_REVIEWS+"/*",REVIEWS_WITH_ID);
 
@@ -90,23 +85,11 @@ public class MovieProvider extends ContentProvider {
             "AND "+ MovieContract.MoviesEntry.TABLE_NAME+"."+MovieContract.MoviesEntry.COLUMN_MOVIE_ID+" = ? ";
     String reviewsSelection=MovieContract.ReviewsEntry.TABLE_NAME+"."+MovieContract.ReviewsEntry.COLUMN_MOVIE_ID+" = ? ";
     String trailersSelection=MovieContract.TrailersEntry.TABLE_NAME+"."+MovieContract.TrailersEntry.COLUMN_MOVIE_ID+" = ? ";
-    public void  seeAllFavouriteMovie(){
-        Cursor cursor=getContext().getContentResolver().query(MovieContract.FavouritesEntry.CONTENT_URI, null, null, null, null);
-        if(cursor.moveToFirst()){
-            //Log.d(LOG_TAG,"No of favourites: "+cursor.getCount());
-            do{
-                //Log.d(LOG_TAG,cursor.getString(0)+"\n"+cursor.getString(1)+"\n"+cursor.getString(2));
-            }while (cursor.moveToNext());
-        }
-        if (cursor!=null){
-            cursor.close();
-        }
-    }
     @Nullable
     @Override
     public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
         int match=uriMatcher.match(uri);
-        Log.d(LOG_TAG,"query uri matcher: "+match+",as uri= "+uri.toString());
+//        Log.d(LOG_TAG,"query uri matcher: "+match+",as uri= "+uri.toString());
         Cursor retCursor=null;
         switch (match){
             case FAVOURITES:
@@ -204,7 +187,7 @@ public class MovieProvider extends ContentProvider {
     @Override
     public Uri insert(Uri uri, ContentValues values) {
         int match=uriMatcher.match(uri);
-        Log.d(LOG_TAG,"match = "+match+"insert : as url= "+uri.toString());
+//        Log.d(LOG_TAG,"match = "+match+"insert : as url= "+uri.toString());
         Uri retUri = null;
         final SQLiteDatabase db=mDBHelper.getWritableDatabase();
         switch (match){
@@ -216,7 +199,6 @@ public class MovieProvider extends ContentProvider {
                 String movieId= MovieContract.FavouritesEntry.getMovieIdFromUri(uri);
                 ContentValues c=new ContentValues();
                 c.put(MovieContract.FavouritesEntry.COLUMN_MOVIE_ID, movieId);
-                seeAllFavouriteMovie();
                 retUri=uri;
                 break;
             case MOVIE_WITH_GENRE:

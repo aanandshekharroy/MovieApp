@@ -74,4 +74,5 @@
     <string name="markAsFavourite">Mark as favourite</string>
     <string name="removeFromFavourites">Remove from favourites</string>
     <string name="action_share">Share</string>
+    <string name="empty_view">No movies Found!</string>
 </resources>

@@ -118,11 +118,9 @@ public class MainActivity extends AppCompatActivity implements MainActivityFragm
                 Log.d(LOG_TAG,"ff not null: ");
                 ff.onSortOrderChange();
             }
-            DetailActivityFragment detailActivityFragment=(DetailActivityFragment)getSupportFragmentManager()
-                    .findFragmentByTag(DETAILFRAGMENT_TAG);
-            if(detailActivityFragment!=null){
-                detailActivityFragment.onSortOrderChange();
-            }
+//            DetailActivityFragment detailActivityFragment=(DetailActivityFragment)getSupportFragmentManager()
+//                    .findFragmentByTag(DETAILFRAGMENT_TAG);
+//            detailActivityFragment.re
             mSortBy=sortBy;
         }
 //        else{

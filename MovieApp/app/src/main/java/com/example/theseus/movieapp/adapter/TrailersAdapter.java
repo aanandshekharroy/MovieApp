@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,6 +29,8 @@ import butterknife.ButterKnife;
 public class TrailersAdapter extends CursorAdapter  {
     Context context;
     String trailersUrl;
+    public static final String LOG_TAG=TrailersAdapter.class.getSimpleName();
+    private int noOfTrailers=0;
     Cursor currentCursor;
     static final String[] trailersProjection={
             MovieContract.TrailersEntry.TABLE_NAME+"."+MovieContract.TrailersEntry._ID,
@@ -38,7 +41,9 @@ public class TrailersAdapter extends CursorAdapter  {
     static final int COLUMN_TRAILER_URL=2;
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     public TrailersAdapter(Context context, Cursor c, int flags) {
+
         super(context, c, flags);
+        noOfTrailers=0;
         this.context=context;
     }
     public static final class ViewHolder{
@@ -54,6 +59,13 @@ public class TrailersAdapter extends CursorAdapter  {
         View view= LayoutInflater.from(context).inflate(R.layout.trailer,parent,false);
         ViewHolder viewHolder=new ViewHolder(view);
         view.setTag(viewHolder);
+        noOfTrailers++;
+        if(noOfTrailers==1){
+            Log.d(LOG_TAG,"notr2: "+noOfTrailers);
+            viewHolder=(ViewHolder)view.getTag();
+            viewHolder.trailersLabel.setVisibility(View.VISIBLE);
+        }
+
         return view;
     }
 
@@ -61,17 +73,8 @@ public class TrailersAdapter extends CursorAdapter  {
     public void bindView(View view, Context context, Cursor cursor) {
         ViewHolder viewHolder=(ViewHolder)view.getTag();
         String trailerLabel=Integer.toString(cursor.getPosition()+1);
-
+        Log.d(LOG_TAG,"notr1: "+noOfTrailers);
         viewHolder.trailersUrl.setText(trailerLabel);
-        if(cursor.getPosition()==0){
-            viewHolder.trailersLabel.setVisibility(View.VISIBLE);
-        }
-    }
 
-//    @Override
-//    public void onClick(View v) {
-//
-//        //context.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(trailersUrl)));
-//
-//    }
+    }
 }

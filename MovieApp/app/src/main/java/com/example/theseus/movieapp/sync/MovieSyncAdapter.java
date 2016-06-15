@@ -58,6 +58,7 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
     RequestQueue requestQueue=null;
     @Override
     public void onPerformSync(Account account, Bundle extras, String authority, ContentProviderClient provider, SyncResult syncResult) {
+        Log.d(LOG_TAG,"syncing");
         String sortBy=getSortBy();
       this.mSortBy=sortBy;
         String baseUrl = null;

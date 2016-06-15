@@ -57,15 +57,8 @@ public class ImageAdapter extends CursorAdapter {
     public View newView(Context context, Cursor cursor, ViewGroup parent) {
         Log.d(LOG_TAG,"\ncursor size: "+cursor.getCount()+",columns: "+cursor.getColumnCount());
         ImageView imageView;
-//        imageView = new ImageView(context);
-
-//        imageView.setLayoutParams(new GridView.LayoutParams(280, 280));
-//        imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
-//        imageView.setPadding(40, 40, 17, 17);
-//        bindView(imageView,context,cursor);
         View rootView= LayoutInflater.from(context).inflate(R.layout.poster,parent,false);
         imageView=(ImageView)rootView.findViewById(R.id.poster);
-//        bindView(imageView,context,cursor);
         return imageView;
     }
 

@@ -34,6 +34,7 @@ import com.example.theseus.movieapp.adapter.ReviewsAdapter;
 import com.example.theseus.movieapp.adapter.TrailersAdapter;
 import com.example.theseus.movieapp.data.MovieContract;
 
+import butterknife.BindView;
 import butterknife.ButterKnife;
 
 /**
@@ -103,6 +104,7 @@ public class DetailActivityFragment extends Fragment implements LoaderManager.Lo
     }
 
     View rootView;
+
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -119,7 +121,26 @@ public class DetailActivityFragment extends Fragment implements LoaderManager.Lo
         detailActivityAdapter=new DetailActivityAdapter(getContext(),null,0);
         reviewsAdapter=new ReviewsAdapter(getContext(),null,0);
         trailersAdapter=new TrailersAdapter(getContext(),null,0);
-        listView=(ListView) rootView.findViewById(R.id.detailedView);return rootView;
+        listView=(ListView) rootView.findViewById(R.id.detailedView);
+        mergeAdapter.addAdapter(detailActivityAdapter);
+        mergeAdapter.addAdapter(reviewsAdapter);
+        mergeAdapter.addAdapter(trailersAdapter);
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+                Cursor cursor=(Cursor)parent.getItemAtPosition(position);
+                String tableName=cursor.getColumnName(COLUMN_MOVIE_ID);
+                if(tableName.contains(MovieContract.TrailersEntry.TABLE_NAME)){
+                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(cursor.getString(COLUMN_TRAILER_URL))));
+
+                }
+//                    Toast.makeText(getContext(),Integer.toString(cursor.getColumnCount()),Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        listView.setAdapter(mergeAdapter);
+        return rootView;
     }
     private Intent createShareIntent(){
         Intent intent=new Intent(Intent.ACTION_SEND);
@@ -177,14 +198,11 @@ public class DetailActivityFragment extends Fragment implements LoaderManager.Lo
         switch (loader.getId()){
             case LOADER_MOVIE_ID:
                 Log.d(LOG_TAG,"6-movie data= "+data.getCount());
-//                detailActivityAdapter.c
-
                 if(data.getCount()==0){
                     mIsNull=true;
                     if(rootView!=null){
                         rootView.findViewById(R.id.removedFromFav).setVisibility(View.VISIBLE);
                     }
-
                 }else{
                     data.moveToFirst();
 //                    Log.d(LOG_TAG,"sharing: "+data.getString(COLUMN_TITLE));
@@ -208,13 +226,9 @@ public class DetailActivityFragment extends Fragment implements LoaderManager.Lo
                     if(data.getCount()!=0){
                         data.moveToFirst();
                         if(data.getPosition()==0){
-
                         Log.d(LOG_TAG,"sharing-tra: "+data.getString(2));
                             mShare=mShare+(" Trailer 1: "+data.getString(2));
-//                            mShare=mShare+;
-
                         }
-
                     }
                     trailersAdapter.swapCursor(data);
                     Log.d(LOG_TAG,"sharing: "+mShare);
@@ -224,30 +238,9 @@ public class DetailActivityFragment extends Fragment implements LoaderManager.Lo
 //                        rootView.findViewById(R.id.removedFromFav).setVisibility(View.VISIBLE);
                     }
                 }
-                mergeAdapter.addAdapter(detailActivityAdapter);
-                mergeAdapter.addAdapter(reviewsAdapter);
-                mergeAdapter.addAdapter(trailersAdapter);
-                listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
-                        Cursor cursor=(Cursor)parent.getItemAtPosition(position);
-                        String tableName=cursor.getColumnName(COLUMN_MOVIE_ID);
-                        if(tableName.contains(MovieContract.TrailersEntry.TABLE_NAME)){
-                            startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(cursor.getString(COLUMN_TRAILER_URL))));
-
-                        }
-//                    Toast.makeText(getContext(),Integer.toString(cursor.getColumnCount()),Toast.LENGTH_SHORT).show();
-                    }
-                });
-                listView.setAdapter(mergeAdapter);
-                //linearLayout.addView();
 
                 break;
-
-
         }
-        //detailActivityAdapter.
     }
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
@@ -266,14 +259,5 @@ public class DetailActivityFragment extends Fragment implements LoaderManager.Lo
                 reviewsAdapter.swapCursor(null);
 
         }
-    }
-
-    public void onSortOrderChange() {
-//        Uri uri=movieUri;
-//        if(uri!=null){
-//            getLoaderManager().restartLoader(LOADER_MOVIE_ID,null,this);
-//            getLoaderManager().restartLoader(LOADER_REVIEW_ID,null,this);
-//            getLoaderManager().restartLoader(LOADER_TRAILER_ID,null,this);
-//        }
     }
 }

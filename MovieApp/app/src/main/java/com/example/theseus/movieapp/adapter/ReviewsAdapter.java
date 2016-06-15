@@ -4,6 +4,7 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.database.Cursor;
 import android.os.Build;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,6 +15,7 @@ import android.widget.TextView;
 import com.example.theseus.movieapp.R;
 import com.example.theseus.movieapp.data.MovieContract;
 
+import java.security.acl.LastOwnerException;
 import java.util.List;
 
 import butterknife.BindView;
@@ -32,7 +34,7 @@ public class ReviewsAdapter extends CursorAdapter{
     };
     static final int COLUMN_AUTHOR=2;
     static final int COLUMN_CONTENT=3;
-
+    public static final String LOG_TAG=ReviewsAdapter.class.getSimpleName();
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     public ReviewsAdapter(Context context, Cursor c, int flags) {
         super(context, c, flags);
@@ -40,13 +42,13 @@ public class ReviewsAdapter extends CursorAdapter{
     public static final class ReviewHolder{
         @BindView(R.id.author)TextView author;
         @BindView(R.id.content)TextView content;
-        @BindView(R.id.reviewsLabel) TextView reviewsLabel;
 
 
         public ReviewHolder(View review) {
             ButterKnife.bind(this,review);
         }
     }
+    boolean first=true;
     @Override
     public View newView(Context context, Cursor cursor, ViewGroup parent) {
         View review=LayoutInflater.from(context).inflate(R.layout.reviews,parent,false);
@@ -57,11 +59,10 @@ public class ReviewsAdapter extends CursorAdapter{
 
     @Override
     public void bindView(View review, Context context, Cursor cursor) {
+
         ReviewHolder viewHolder=(ReviewHolder)review.getTag();
         viewHolder.author.setText(cursor.getString(COLUMN_AUTHOR));
         viewHolder.content.setText(cursor.getString(COLUMN_CONTENT));
-        if(cursor.getPosition()==0){
-            viewHolder.reviewsLabel.setVisibility(View.VISIBLE);
-        }
+
     }
 }

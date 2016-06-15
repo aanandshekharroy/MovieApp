@@ -6,6 +6,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
+import android.support.annotation.DrawableRes;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -66,6 +67,7 @@ public class DetailActivityAdapter extends CursorAdapter {
         @BindView(R.id.poster)ImageView poster;
         @BindView(R.id.votes) TextView votes;
         @BindView(R.id.favourite) Button favouriteButton;
+        @BindView(R.id.reviewsLabel) TextView reviewsLabel;
         public ViewHolder(View view) {
             ButterKnife.bind(this, view);
         }
@@ -96,8 +98,10 @@ public class DetailActivityAdapter extends CursorAdapter {
             viewHolder.synopsis.setText(cursor.getString(COLUMN_SYNOPSIS));
             viewHolder.release_date.setText(cursor.getString(COLUMN_RELEASE_DATE));
             String url="http://image.tmdb.org/t/p/w185/"+cursor.getString(COLUMN_POSTER);
-            Picasso.with(context).load(url).into(viewHolder.poster);
+            Picasso.with(context).load(url).placeholder(R.drawable.placeholder)
+                    .into(viewHolder.poster);
             viewHolder.votes.setText(cursor.getString(COLUMN_VOTES_AVG)+"/10");
+            viewHolder.reviewsLabel.setVisibility(View.VISIBLE);
             favouriteButton(context,view,cursor.getString(COLUMN_MOVIE_ID),viewHolder.favouriteButton);
         }
     }
