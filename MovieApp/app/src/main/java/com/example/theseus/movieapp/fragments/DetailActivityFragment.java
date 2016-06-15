@@ -198,7 +198,7 @@ public class DetailActivityFragment extends Fragment implements LoaderManager.Lo
                     data.moveToFirst();
 //                    Log.d(LOG_TAG,"sharing: "+data.getString(COLUMN_TITLE));
 //                    mShare=mShare+data.getString(COLUMN_TITLE);
-                    mShare=mShare+(data.getString(COLUMN_TITLE));
+                    mShare=mShare+" "+data.getString(COLUMN_TITLE);
                 }
                 detailActivityAdapter.swapCursor(data);
                 break;

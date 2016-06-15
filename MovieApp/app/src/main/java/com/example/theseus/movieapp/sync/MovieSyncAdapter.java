@@ -73,6 +73,7 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
             URL url=new URL(builtUri.toString());
             urlConnection=(HttpURLConnection)url.openConnection();
             urlConnection.setRequestMethod("GET");
+            Log.d(LOG_TAG,"network-call");
             urlConnection.connect();
             InputStream inputStream=urlConnection.getInputStream();
             StringBuffer buffer = new StringBuffer();
@@ -215,7 +216,8 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
         if(cvVector.size()>0){
             ContentValues[] contentValuesArray=new ContentValues[cvVector.size()];
             cvVector.toArray(contentValuesArray);
-            getContext().getContentResolver().bulkInsert(MovieContract.MoviesEntry.CONTENT_URI_GENRE,contentValuesArray);
+            int count=getContext().getContentResolver().bulkInsert(MovieContract.MoviesEntry.CONTENT_URI_GENRE,contentValuesArray);
+            Log.d(LOG_TAG,"count of rows inserted= "+count);
         }
         return MovieContract.MoviesEntry.buildUriFromSortOrder(mSortBy);
     }
