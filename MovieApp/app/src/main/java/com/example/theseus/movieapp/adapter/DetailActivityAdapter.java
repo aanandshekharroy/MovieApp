@@ -3,10 +3,11 @@ package com.example.theseus.movieapp.adapter;
 import android.annotation.TargetApi;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
-import android.support.annotation.DrawableRes;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -32,7 +33,6 @@ public class DetailActivityAdapter extends CursorAdapter {
     private static final String NOT_FAVOURITE_BUTTON_LABEL="Add to favourites";
     private static final String FAVOURITE_BUTTON_LABEL="Remove from favourites";
     String movieId;
-    Context mContext;
     public static View detailView=null;
     static final String[] movieProjections={
             //MovieContract.MoviesEntry.TABLE_NAME+"."+MovieContract.MoviesEntry.COLUMN_MOVIE_ID+" AS "+ BaseColumns._ID,
@@ -72,10 +72,13 @@ public class DetailActivityAdapter extends CursorAdapter {
             ButterKnife.bind(this, view);
         }
     }
+    Context mContext;
     View baseView=null;
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     public DetailActivityAdapter(Context context, Cursor c, int flags) {
+
         super(context, c, flags);
+        mContext=context;
 
     }
     @Override
@@ -133,6 +136,8 @@ public class DetailActivityAdapter extends CursorAdapter {
                     int id=context.getContentResolver().delete(favouriteUri,null,null);
                     if(id!=-1){
                         favouriteButton.setText(NOT_FAVOURITE_BUTTON_LABEL);
+                        Intent i = new Intent("updateUI");
+                        LocalBroadcastManager.getInstance(mContext).sendBroadcast(i);
                     }
                 }
             }
