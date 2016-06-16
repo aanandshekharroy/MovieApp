@@ -37,7 +37,7 @@ public class MainActivity extends AppCompatActivity implements MainActivityFragm
         if(findViewById(R.id.fragment_detail)!=null){
             Log.d(LOG_TAG,"rotated");
             mTwoPane=true;
-            if(savedInstanceState!=null){
+            if(savedInstanceState==null){
                 Log.d(LOG_TAG,"new -created");
                 getSupportFragmentManager().beginTransaction()
                         .replace(R.id.fragment_detail,new DetailActivityFragment(),DETAILFRAGMENT_TAG)
