@@ -8,6 +8,7 @@ import android.content.ContentProviderClient;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SyncRequest;
 import android.content.SyncResult;
@@ -16,6 +17,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -26,19 +28,12 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.theseus.movieapp.BuildConfig;
 import com.example.theseus.movieapp.R;
-import com.example.theseus.movieapp.activity.MainActivity;
 import com.example.theseus.movieapp.data.MovieContract;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.Vector;
 
 public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
@@ -162,6 +157,10 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
                 }
             }
         }
+        Log.d(LOG_TAG,"restarting loader");
+        //To update the UI after fetching , send an intent to notify the MainActivityFragment
+        Intent i = new Intent("updateUI");
+        LocalBroadcastManager.getInstance(getContext()).sendBroadcast(i);
     }
     private Uri jsonParser(String movieData) throws JSONException {
         if(movieData==null){
@@ -214,6 +213,9 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
 
         getJson(builtUriTrailer,movieId,"trailers");
         getJson(builtUriReviews,movieId,"reviews");
+
+
+
         return ;
     }
 

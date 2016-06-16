@@ -1,7 +1,10 @@
 package com.example.theseus.movieapp.fragments;
 
 import android.annotation.TargetApi;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
@@ -12,6 +15,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -20,9 +24,8 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
 
-import com.example.theseus.movieapp.adapter.ImageAdapter;
 import com.example.theseus.movieapp.R;
-import com.example.theseus.movieapp.activity.DetailActivity;
+import com.example.theseus.movieapp.adapter.ImageAdapter;
 import com.example.theseus.movieapp.data.MovieContract;
 import com.example.theseus.movieapp.sync.MovieSyncAdapter;
 
@@ -61,9 +64,27 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
         super.onActivityCreated(savedInstanceState);
     }
 
-    public void initializeLoader(){
+    @Override
+    public void onResume() {
+        super.onResume();
+        //To updata the UI, recieve an intent that notifies to restart the loader
+        IntentFilter filter = new IntentFilter("updateUI");
+        LocalBroadcastManager.getInstance(getContext()).registerReceiver(myReceiver, filter);
+    }
+    private BroadcastReceiver myReceiver = new BroadcastReceiver(){
+        @Override
+        public void onReceive(Context context, Intent intent){
+            restartLoader();
+        }
+    };
+    public void onPause(){
+        super.onPause();
+        LocalBroadcastManager.getInstance(getContext()).unregisterReceiver(myReceiver);
+    }
+    public void restartLoader(){
         Log.d(LOG_TAG,"reinitialized");
-        getLoaderManager().initLoader(MOVIE_LOADER_ID, null, this);
+
+        getLoaderManager().restartLoader(MOVIE_LOADER_ID, null, this);
 
     }
 

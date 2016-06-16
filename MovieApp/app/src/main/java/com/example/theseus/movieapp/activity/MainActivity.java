@@ -7,13 +7,10 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-
-import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.Window;
 
 import com.example.theseus.movieapp.R;
 import com.example.theseus.movieapp.fragments.DetailActivityFragment;
@@ -109,7 +106,6 @@ public class MainActivity extends AppCompatActivity implements MainActivityFragm
     super.onResume();
         String sortBy=getSortBy();
         MainActivityFragment ff = null;
-//        Log.d(LOG_TAG,"sortByfunc: "+sortBy+", mSortBy= "+mSortBy);
         Log.d(LOG_TAG,"fas----0");
         if(sortBy!=null||!mSortBy.equals(sortBy)){
             ff=(MainActivityFragment)getSupportFragmentManager()
@@ -118,19 +114,7 @@ public class MainActivity extends AppCompatActivity implements MainActivityFragm
                 Log.d(LOG_TAG,"ff not null: ");
                 ff.onSortOrderChange();
             }
-//            DetailActivityFragment detailActivityFragment=(DetailActivityFragment)getSupportFragmentManager()
-//                    .findFragmentByTag(DETAILFRAGMENT_TAG);
-//            detailActivityFragment.re
             mSortBy=sortBy;
-        }
-//        else{
-//            ff=(MainActivityFragment)getSupportFragmentManager()
-//                    .findFragmentById(R.id.fragment_main);
-//            if(ff!=null){
-//
-//                ff.onSortOrderChange();
-//            }
-//        }
-        Log.d(LOG_TAG,"fas----1");
+        }Log.d(LOG_TAG,"fas----1");
     }
 }
